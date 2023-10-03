@@ -7,19 +7,17 @@
     <img src="images/emcee-icon.png" alt="Logo" width="96" height="96">
   </a>
 
-  <h3 align="center">Discord-emcee</h3>
+  <h3 align="center">discord-emcee</h3>
 
   <p align="center">
     A library for easily building user interfaces on top of the Discord MessageComponent APIs.
     <br />
-    <a href="https://github.com/othneildrew/Best-README-Template"><strong>Explore the docs »</strong></a>
+    <a href="https://johnathandavis.github.io/discord-emcee/"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/othneildrew/Best-README-Template">View Demo</a>
+    <a href="https://github.com/johnathandavis/discord-emcee/issues">Report Bug</a>
     ·
-    <a href="https://github.com/othneildrew/Best-README-Template/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/othneildrew/Best-README-Template/issues">Request Feature</a>
+    <a href="https://github.com/johnathandavis/discord-emcee/issues">Request Feature</a>
   </p>
 </div>
 
