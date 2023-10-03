@@ -15,9 +15,9 @@
     <a href="https://johnathandavis.github.io/discord-emcee/"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/johnathandavis/discord-emcee/issues">Report Bug</a>
+    <a href="https://github.com/johnathandavis/discord-emcee/issues/new?labels=bug">Report Bug</a>
     ·
-    <a href="https://github.com/johnathandavis/discord-emcee/issues">Request Feature</a>
+    <a href="https://github.com/johnathandavis/discord-emcee/issues/new?labels=enhancement">Request Feature</a>
   </p>
 </div>
 
