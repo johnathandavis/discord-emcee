@@ -1,0 +1,24 @@
+{
+  "name": "discord-emcee",
+  "version": "1.0.0",
+  "description": "A library for easily building user interfaces on top of the Discord MessageComponent APIs.",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/events": "^3.0.1",
+    "@types/jest": "^29.5.5",
+    "@types/node": "^20.8.2",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "discord.js": "^14.13.0",
+    "events": "^3.3.0"
+  }
+}
