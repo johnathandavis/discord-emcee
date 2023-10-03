@@ -27,6 +27,8 @@
 ![](images/badges/badge-lines.svg)
 ![](images/badges/badge-statements.svg)
 
+<!-- https://img.shields.io/npm/dt/@johndavisdev/discord-emcee -->
+
 ```typescript
 import { prompt, sb } from 'discord-emcee';
 
