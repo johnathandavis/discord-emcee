@@ -13,7 +13,7 @@
     }
   },
   "scripts": {
-    "release:publish": "npm version $(semver $npm_package_version -i minor) && npm publish --tag latest",
+    "release:publish": "npm version $(semver $npm_package_version -i minor) && npm publish --tag latest --access public",
     "release:check": "npm run format && npm run lint && npm run build && npm run test && npm run docs",
     "build": "npm run build:cjs && npm run build:esm",
     "build:cjs": "tsc -p tsconfig.cjs.json",
