@@ -1,6 +1,6 @@
 {
   "name": "@johndavisdev/discord-emcee",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A library for easily building user interfaces on top of the Discord MessageComponent APIs.",
   "main": "dist/cjs/index.js",
   "types": "dist/types",
