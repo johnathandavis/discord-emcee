@@ -1,10 +1,5 @@
 <a name="readme-top"></a>
 
-![](images/badges/badge-branches.svg)
-![](images/badges/badge-functions.svg)
-![](images/badges/badge-lines.svg)
-![](images/badges/badge-statements.svg)
-
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
@@ -27,6 +22,11 @@
     <a href="https://github.com/othneildrew/Best-README-Template/issues">Request Feature</a>
   </p>
 </div>
+
+![](images/badges/badge-branches.svg)
+![](images/badges/badge-functions.svg)
+![](images/badges/badge-lines.svg)
+![](images/badges/badge-statements.svg)
 
 ```typescript
 import { prompt, sb } from 'discord-emcee';
