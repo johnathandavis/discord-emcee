@@ -21,11 +21,14 @@
   </p>
 </div>
 
+![](https://img.shields.io/github/languages/top/johnathandavis/discord-emcee)
 ![](https://img.shields.io/github/license/johnathandavis/discord-emcee)
 ![](images/badges/badge-branches.svg)
 ![](images/badges/badge-functions.svg)
 ![](images/badges/badge-lines.svg)
 ![](images/badges/badge-statements.svg)
+![](https://img.shields.io/github/issues/johnathandavis/discord-emcee)
+![](https://img.shields.io/github/issues-pr/johnathandavis/discord-emcee)
 
 <!-- https://img.shields.io/npm/dt/@johndavisdev/discord-emcee -->
 
