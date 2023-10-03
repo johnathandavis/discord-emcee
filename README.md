@@ -21,6 +21,7 @@
   </p>
 </div>
 
+![](https://img.shields.io/github/license/johnathandavis/discord-emcee)
 ![](images/badges/badge-branches.svg)
 ![](images/badges/badge-functions.svg)
 ![](images/badges/badge-lines.svg)

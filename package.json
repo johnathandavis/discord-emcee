@@ -1,16 +1,32 @@
 {
-  "name": "discord-emcee",
+  "name": "@johndavisdev/discord-emcee",
   "version": "1.0.0",
   "description": "A library for easily building user interfaces on top of the Discord MessageComponent APIs.",
-  "main": "index.js",
+  "main": "dist/cjs/index.js",
+  "types": "dist/types",
+  "type": "module",
+  "private": false,
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
   "scripts": {
-    "release": "npm run format && npm run lint && npm run build && npm run test && npm run docs",
-    "build": "tsc",
+    "release:publish": "npm version $(semver $npm_package_version -i minor) && npm publish --tag latest",
+    "release:check": "npm run format && npm run lint && npm run build && npm run test && npm run docs",
+    "build": "npm run build:cjs && npm run build:esm",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "build:esm": "tsc -p tsconfig.esm.json",
     "test": "jest && npm run test:badge",
     "test:badge": "npx jest-coverage-badges input \"./reports/coverage/coverage-summary.json\" output \"./images/badges\"",
     "docs": "npx api-documenter markdown --input-folder src --output-folder docs/",
     "lint": "npx eslint src/**/*.ts",
     "format": "npx prettier --config .prettierrc 'src/**/*.ts' --write"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/johnathandavis/discord-emcee.git"
   },
   "author": "",
   "license": "MIT",
@@ -33,6 +49,7 @@
     "jest-coverage-badges": "^1.1.2",
     "jest-html-reporter": "^3.10.2",
     "prettier": "^3.0.3",
+    "semver": "^7.5.4",
     "ts-jest": "^29.1.1",
     "typescript": "^5.2.2"
   },
