@@ -27,7 +27,10 @@ type BooleanStateInput = {
     style?: ButtonStyle;
     text?: string;
   };
-  falseStyle?: {};
+  falseStyle?: {
+    style?: ButtonStyle;
+    text?: string;
+  };
 };
 type StateInput = OptionStateInput | BooleanStateInput;
 type StateValue = StateInput['value'];

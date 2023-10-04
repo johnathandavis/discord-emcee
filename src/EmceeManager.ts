@@ -11,7 +11,7 @@ import type {
   InputUpdateArgs,
   StateValueMap
 } from './Shared';
-import { createUI } from './UI';
+import { createUI } from './ui';
 import { State } from './State';
 import { MCSchema, MCRawShape, Infer } from './StateBuilder';
 
