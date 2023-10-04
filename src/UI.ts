@@ -104,7 +104,7 @@ const createButton = (
   let style = getStyle(input, currentValue);
   return new ButtonBuilder()
     .setLabel(style.text)
-    .setCustomId('submit')
+    .setCustomId(input.id)
     .setStyle(style.style);
 };
 
