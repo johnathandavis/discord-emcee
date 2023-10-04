@@ -1,18 +1,13 @@
+import './SymPolyfill';
 import {
   ChatInputCommandInteraction,
   InteractionResponse,
-  InteractionCollector,
   ButtonInteraction,
   StringSelectMenuInteraction,
-  InteractionReplyOptions,
-  ComponentType,
-  MessageComponentInteraction
+  ComponentType
 } from 'discord.js';
 import type {
   EmceeUserInterface,
-  StateDefinition,
-  StateValue,
-  StateInput,
   InputUpdateArgs,
   StateValueMap
 } from './Shared';

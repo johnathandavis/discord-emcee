@@ -7,7 +7,7 @@
         "declarationDir": "dist/types",
         "esModuleInterop": true,
         "inlineSourceMap": false,
-        "lib": ["es2022", "esnext.disposable"],
+        "lib": ["esnext"],
         "listEmittedFiles": false,
         "listFiles": false,
         "moduleResolution": "node",

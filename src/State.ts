@@ -1,3 +1,4 @@
+import './SymPolyfill';
 import {
   InteractionCollector,
   ButtonInteraction,
@@ -9,7 +10,6 @@ import {
   StateInput,
   StateValue,
   StateDefinition,
-  Updater,
   InputUpdateArgs,
   InputUpdatedHandler,
   ValidationStateChangedArgs
