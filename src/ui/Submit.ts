@@ -2,16 +2,14 @@ import {
   StringSelectMenuBuilder,
   ActionRowBuilder,
   ButtonBuilder,
-  ButtonStyle,
+  ButtonStyle
 } from 'discord.js';
-import {
-  EmceeUserInterface,
-} from '../Shared';
+import { EmceeUserInterface } from '../Shared';
 
 type SubmitConfig = Exclude<EmceeUserInterface['submit'], undefined>;
 
 const createSubmit = (
-  config: SubmitConfig | undefined, 
+  config: SubmitConfig | undefined,
   enabled: boolean
 ): ButtonBuilder => {
   if (!config) {
@@ -24,6 +22,4 @@ const createSubmit = (
     .setStyle(config.buttonStyle ?? ButtonStyle.Primary);
 };
 
-export {
-    createSubmit
-};
+export { createSubmit };

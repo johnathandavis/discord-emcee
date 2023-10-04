@@ -2,10 +2,7 @@ import {
   StringSelectMenuOptionBuilder,
   StringSelectMenuBuilder
 } from 'discord.js';
-import {
-  OptionStateInput,
-  IOption
-} from '../Shared';
+import { OptionStateInput, IOption } from '../Shared';
 
 const createOption = (
   input: OptionStateInput,
@@ -38,7 +35,4 @@ function createOptionValue<T>(
   return b;
 }
 
-export {
-  createOption,
-  createOptionValue
-}
+export { createOption, createOptionValue };

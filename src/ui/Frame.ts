@@ -21,27 +21,31 @@ type Component = StringSelectMenuBuilder | ButtonBuilder;
 type Row = ActionRowBuilder<Component>;
 type Components = Row[];
 
-type ComponentBuildFor<T extends StateInput> =
-  T extends OptionStateInput ? StringSelectMenuBuilder :
-  T extends BooleanStateInput ? ButtonBuilder :
-  never;
-  
+type ComponentBuildFor<T extends StateInput> = T extends OptionStateInput
+  ? StringSelectMenuBuilder
+  : T extends BooleanStateInput
+  ? ButtonBuilder
+  : never;
+
 type InputFactory = {
-  [IT in StateInput as IT['type']]: (i: IT, v: IT['value']) => ComponentBuildFor<IT>
-}
+  [IT in StateInput as IT['type']]: (
+    i: IT,
+    v: IT['value']
+  ) => ComponentBuildFor<IT>;
+};
 
 function row<T extends Component>(c: T): ActionRowBuilder<T> {
   return new ActionRowBuilder<T>().addComponents(c);
 }
 
 const defaultInstanceFactory: InputFactory = {
-  'Boolean': (b: BooleanStateInput, currentValue: boolean | undefined) => {
+  Boolean: (b: BooleanStateInput, currentValue: boolean | undefined) => {
     return createButton(b, currentValue ?? false);
   },
-  'Option': (b: OptionStateInput, currentValue: any | undefined) => {
+  Option: (b: OptionStateInput, currentValue: any | undefined) => {
     return createOption(b, currentValue);
   }
-}
+};
 
 function createUI<T extends MCSchema<MCRawShape>>(
   uiDef: EmceeUserInterface,
@@ -57,7 +61,10 @@ function createUI<T extends MCSchema<MCRawShape>>(
   const components: Components = [];
 
   sd.inputs.forEach((i) => {
-    const iffFunc = iff[i.type] as (i: StateInput, v: any | undefined) => Component;
+    const iffFunc = iff[i.type] as (
+      i: StateInput,
+      v: any | undefined
+    ) => Component;
     components.push(row(iffFunc(i, currentState[i.id])));
   });
   components.push(row(submitBtn));
@@ -78,12 +85,5 @@ const createUIInput = (
   }
 };
 
-export {
-  createUI,
-  createUIInput
-}
-export type {
-  InputFactory,
-  Component,
-  Row
-}
+export { createUI, createUIInput };
+export type { InputFactory, Component, Row };

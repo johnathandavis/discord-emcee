@@ -1,10 +1,5 @@
-import {
-  ButtonBuilder,
-  ButtonStyle,
-} from 'discord.js';
-import {
-  BooleanStateInput,
-} from '../Shared';
+import { ButtonBuilder, ButtonStyle } from 'discord.js';
+import { BooleanStateInput } from '../Shared';
 
 type ButtonStyleConfig = Required<
   Exclude<BooleanStateInput['trueStyle'], undefined>
@@ -42,6 +37,4 @@ const createButton = (
     .setStyle(style.style);
 };
 
-export {
-  createButton
-}
+export { createButton };
