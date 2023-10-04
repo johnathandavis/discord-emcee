@@ -23,7 +23,7 @@
     "format": "npx prettier --config .prettierrc 'src/**/*.ts' --write",
     "release": "npm run release:check && npm run release:publish",
     "release:publish": "npm version $(semver $npm_package_version -i minor) && npm publish --tag latest --access public",
-    "release:check": "npm run format && npm run lint && npm run build && npm run test && npm run docs",
+    "release:check": "npm run format && npm run lint && npm run build && npm run test && npm run docs"
   },
   "homepage": "https://johnathandavis.github.io/discord-emcee/",
   "repository": {
