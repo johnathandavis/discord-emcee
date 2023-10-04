@@ -7,7 +7,7 @@
         "declarationDir": "dist/types",
         "esModuleInterop": true,
         "inlineSourceMap": false,
-        "lib": ["esnext"],
+        "lib": ["es2022"],
         "listEmittedFiles": false,
         "listFiles": false,
         "moduleResolution": "node",
@@ -17,6 +17,7 @@
         "rootDir": "src",
         "skipLibCheck": true,
         "strict": true,
+        "target": "es2022",
         "traceResolution": false,
         "types": ["node", "jest"]
     },
