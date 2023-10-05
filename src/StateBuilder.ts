@@ -3,8 +3,7 @@ import {
   StateDefinition,
   StateInput,
   OptionStateInput,
-  UserStateInput,
-  User
+  UserStateInput
 } from './Shared';
 
 class MCType<T extends MCRawShape, Output = any> {

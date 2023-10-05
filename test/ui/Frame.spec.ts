@@ -8,7 +8,7 @@ import * as sb from '../../src/StateBuilder';
 const Model = ['ChatGPT4', 'ChatGPT3'] as const;
 type ModelType = typeof Model[number];
 const o = sb.optionInput<ModelType>({
-    values: [
+    options: [
         { label: 'ChatGPT4', value: 'ChatGPT4', result: 'ChatGPT4' },
         { label: 'ChatGPT3', value: 'ChatGPT3', result: 'ChatGPT3' }
     ],

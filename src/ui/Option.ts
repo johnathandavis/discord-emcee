@@ -13,7 +13,7 @@ const createOption = (
   if (input.placeholder) {
     eb.setPlaceholder(input.placeholder!);
   }
-  let options = input.values.map((v) => createOptionValue(v, selectedValue));
+  let options = input.options.map((v) => createOptionValue(v, selectedValue));
   eb.addOptions(options);
   eb.setDisabled(input.disabled ?? false);
   return eb;

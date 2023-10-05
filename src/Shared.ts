@@ -19,8 +19,8 @@ type IOption<T> = {
 type OptionStateInput<T = any> = {
   id: string;
   type: 'Option';
+  options: IOption<T>[];
   placeholder?: string;
-  values: IOption<T>[];
   value?: T | null;
   disabled?: boolean;
 };

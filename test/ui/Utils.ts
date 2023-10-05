@@ -1,6 +1,7 @@
-import { APIButtonComponent, APIStringSelectComponent, APISelectMenuOption } from 'discord.js';
+import { APIButtonComponent, APIStringSelectComponent, APISelectMenuOption, APIUserSelectComponent, APIChannelSelectComponent, APIRoleSelectComponent, APIMentionableSelectComponent } from 'discord.js';
 
-type C = APIButtonComponent | APIStringSelectComponent | APISelectMenuOption;
+type C = APIButtonComponent | APIStringSelectComponent | APISelectMenuOption | 
+    APIUserSelectComponent | APIChannelSelectComponent | APIRoleSelectComponent | APIMentionableSelectComponent;
 function cMatches<T extends C>(expected: Partial<C>, actual: C): boolean {
     let e = expected as Record<string, any>;
     const a = actual as Record<string, any>;

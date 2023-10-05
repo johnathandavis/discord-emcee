@@ -13,7 +13,7 @@ type BType = sb.Infer<typeof b>;
 const Model = ['ChatGPT4', 'ChatGPT3'] as const;
 type ModelType = typeof Model[number];
 const o = sb.optionInput<ModelType>({
-    values: [
+    options: [
         { label: 'ChatGPT4', value: 'ChatGPT4', result: 'ChatGPT4' },
         { label: 'ChatGPT3', value: 'ChatGPT3', result: 'ChatGPT3' }
     ]
@@ -41,7 +41,7 @@ describe('StateBuilder', () => {
             model: sb.optionInput<ModelType>({
                 placeholder: 'Select Model',
                 value: 'ChatGPT4',
-                values: [
+                options: [
                     { label: 'ChatGPT4', value: 'ChatGPT4', result: 'ChatGPT4' },
                     { label: 'ChatGPT3', value: 'ChatGPT3', result: 'ChatGPT3' }
                 ]
@@ -60,7 +60,7 @@ describe('StateBuilder', () => {
         expect(io.type).toBe('Option');
         expect(io.value).toBe('ChatGPT4');
         expect(io.placeholder).toBe('Select Model');
-        expect(io.values[0]).toStrictEqual({ label: 'ChatGPT4', value: 'ChatGPT4', result: 'ChatGPT4' });
-        expect(io.values[1]).toStrictEqual({ label: 'ChatGPT3', value: 'ChatGPT3', result: 'ChatGPT3' });
+        expect(io.options[0]).toStrictEqual({ label: 'ChatGPT4', value: 'ChatGPT4', result: 'ChatGPT4' });
+        expect(io.options[1]).toStrictEqual({ label: 'ChatGPT3', value: 'ChatGPT3', result: 'ChatGPT3' });
     });
 });
