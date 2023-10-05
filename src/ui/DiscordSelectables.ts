@@ -138,7 +138,8 @@ const createDiscordSelect = <T extends SelectableType>(
 ): ExtendedBuilder<T> => {
   const dv = currentValues ?? input.value;
   const defaultValues: User[] = dv && Array.isArray(dv) ? (dv as User[]) : [];
-  eb.setCustomId(input.id).setDisabled(input.disabled);
+  eb.setCustomId(input.id);
+  eb.setDisabled(input.disabled);
   if (defaultValues.length > 0) {
     eb.setDefaultValues(defaultValues);
   }

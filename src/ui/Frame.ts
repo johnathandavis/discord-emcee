@@ -79,10 +79,13 @@ function createUI<T extends MCSchema<MCRawShape>>(
     components.push(row(iffFunc(i, currentState[i.id])));
   });
   components.push(row(submitBtn));
-  return {
+  const ui = {
     content: uiDef.title,
     components: components
   };
+  console.log('UI:');
+  console.log(ui);
+  return ui;
 }
 
 const createUIInput = (
