@@ -47,13 +47,18 @@ const defaultValue = (si: StateInput): StateValue => {
   }
 };
 
-type ComponentTypeOf<T extends StateInput> =
-    T['type'] extends 'Boolean' ? ComponentType.Button
-  : T['type'] extends 'Options' ? ComponentType.StringSelect
-  : T['type'] extends 'User' ? ComponentType.UserSelect
-  : T['type'] extends 'Channel' ? ComponentType.ChannelSelect
-  : T['type'] extends 'Role' ? ComponentType.RoleSelect
-  : T['type'] extends 'Mentionable' ? ComponentType.MentionableSelect
+type ComponentTypeOf<T extends StateInput> = T['type'] extends 'Boolean'
+  ? ComponentType.Button
+  : T['type'] extends 'Options'
+  ? ComponentType.StringSelect
+  : T['type'] extends 'User'
+  ? ComponentType.UserSelect
+  : T['type'] extends 'Channel'
+  ? ComponentType.ChannelSelect
+  : T['type'] extends 'Role'
+  ? ComponentType.RoleSelect
+  : T['type'] extends 'Mentionable'
+  ? ComponentType.MentionableSelect
   : never;
 
 function toComponentType<T extends StateInput>(
@@ -101,7 +106,7 @@ function createAttachment<T extends StateInput>(
     } else if (i.componentType === ComponentType.UserSelect) {
       const usi = k as UserStateInput;
       const currentValue = usi.value ?? undefined;
-      const selection = i.values ?? undefined;;
+      const selection = i.values ?? undefined;
       args = {
         item: k,
         oldValue: currentValue,
@@ -121,7 +126,9 @@ interface EventArgsMap<T extends StateInput> {
   validationStateChanged: ValidationStateChangedArgs;
 }
 type HandlerMap<T extends StateInput> = {
-  [Property in keyof EventArgsMap<T>]: (args: EventArgsMap<T>[Property]) => void;
+  [Property in keyof EventArgsMap<T>]: (
+    args: EventArgsMap<T>[Property]
+  ) => void;
 };
 
 class State {
@@ -166,13 +173,22 @@ class State {
     });
   };
 
-  on<T extends keyof HandlerMap<any>>(eventName: T, handler: HandlerMap<any>[T]) {
+  on<T extends keyof HandlerMap<any>>(
+    eventName: T,
+    handler: HandlerMap<any>[T]
+  ) {
     this._emitter.on(eventName, handler);
   }
-  once<T extends keyof HandlerMap<any>>(eventName: T, handler: HandlerMap<any>[T]) {
+  once<T extends keyof HandlerMap<any>>(
+    eventName: T,
+    handler: HandlerMap<any>[T]
+  ) {
     this._emitter.once(eventName, handler);
   }
-  off<T extends keyof HandlerMap<any>>(eventName: T, handler: HandlerMap<any>[T]) {
+  off<T extends keyof HandlerMap<any>>(
+    eventName: T,
+    handler: HandlerMap<any>[T]
+  ) {
     this._emitter.off(eventName, handler);
   }
 

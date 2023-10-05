@@ -54,9 +54,10 @@ type StateDefinition = {
 };
 type StateValueMap = Record<string, StateValue>;
 
-type InteractionOfValue<T extends StateValue> =
-    T extends IOption<any> ? StringSelectMenuInteraction
-  : T extends User ? UserSelectMenuInteraction
+type InteractionOfValue<T extends StateValue> = T extends IOption<any>
+  ? StringSelectMenuInteraction
+  : T extends User
+  ? UserSelectMenuInteraction
   : ButtonInteraction;
 
 type InteractionOfInput<T extends StateInput> = InteractionOfValue<T>;
@@ -70,7 +71,7 @@ type InputUpdateArgs<T extends StateInput> = {
   item: StateInput;
   oldValue: StateValue;
   newValue: StateValue;
-  interaction: InteractionOfValue<T>
+  interaction: InteractionOfValue<T>;
 };
 type ValidationStateChangedArgs = {
   isValid: boolean;
