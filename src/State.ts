@@ -4,7 +4,8 @@ import {
   ButtonInteraction,
   StringSelectMenuInteraction,
   ComponentType,
-  InteractionResponse
+  InteractionResponse,
+  UserSelectMenuInteraction
 } from 'discord.js';
 import {
   StateInput,
@@ -12,12 +13,13 @@ import {
   StateDefinition,
   InputUpdateArgs,
   InputUpdatedHandler,
-  ValidationStateChangedArgs
+  ValidationStateChangedArgs,
+  UserStateInput
 } from './Shared';
 import evt from 'events';
 
 type InternalCollector = InteractionCollector<
-  ButtonInteraction | StringSelectMenuInteraction
+  ButtonInteraction | StringSelectMenuInteraction | UserSelectMenuInteraction
 >;
 type InternalStateItem = {
   item: StateInput;
@@ -38,23 +40,20 @@ const defaultValue = (si: StateInput): StateValue => {
   if (si.value) return si.value;
   if (si.type === 'Boolean') {
     return false;
+  } else if (si.type === 'User') {
+    return undefined;
   } else if (si.type === 'Option') {
     return undefined;
   }
 };
 
-type ComponentTypeOf<T extends StateInput> = T['type'] extends 'Boolean'
-  ? ComponentType.Button
-  : T['type'] extends 'Options'
-  ? ComponentType.StringSelect
-  : T['type'] extends 'User'
-  ? ComponentType.UserSelect
-  : T['type'] extends 'Channel'
-  ? ComponentType.ChannelSelect
-  : T['type'] extends 'Role'
-  ? ComponentType.RoleSelect
-  : T['type'] extends 'Mentionable'
-  ? ComponentType.MentionableSelect
+type ComponentTypeOf<T extends StateInput> =
+    T['type'] extends 'Boolean' ? ComponentType.Button
+  : T['type'] extends 'Options' ? ComponentType.StringSelect
+  : T['type'] extends 'User' ? ComponentType.UserSelect
+  : T['type'] extends 'Channel' ? ComponentType.ChannelSelect
+  : T['type'] extends 'Role' ? ComponentType.RoleSelect
+  : T['type'] extends 'Mentionable' ? ComponentType.MentionableSelect
   : never;
 
 function toComponentType<T extends StateInput>(
@@ -80,35 +79,49 @@ function createAttachment<T extends StateInput>(
     filter: (b) => b.customId === k.id
   }) as unknown as InternalCollector;
   c.on('collect', async (i) => {
+    let args: InputUpdateArgs<T> | undefined = undefined;
     if (i.componentType === ComponentType.Button) {
       const currentValue = k.value ?? false;
       const newValue = !currentValue;
-      await handler({
+      args = {
         item: k,
         oldValue: currentValue,
         newValue: newValue,
         interaction: i
-      });
+      } as InputUpdateArgs<T>;
     } else if (i.componentType === ComponentType.StringSelect) {
       const currentValue = k.value ?? undefined;
       const selection = i.values[0] as unknown as T['value'];
-      await handler({
+      args = {
         item: k,
         oldValue: currentValue,
         newValue: selection as unknown as T['value'],
         interaction: i
-      });
+      } as InputUpdateArgs<T>;
+    } else if (i.componentType === ComponentType.UserSelect) {
+      const usi = k as UserStateInput;
+      const currentValue = usi.value ?? undefined;
+      const selection = i.values ?? undefined;;
+      args = {
+        item: k,
+        oldValue: currentValue,
+        newValue: selection as unknown as T['value'],
+        interaction: i
+      } as InputUpdateArgs<T>;
+    }
+    if (args) {
+      await handler(args);
     }
   });
   return c;
 }
 
-interface EventArgsMap {
-  stateUpdate: InputUpdateArgs;
+interface EventArgsMap<T extends StateInput> {
+  stateUpdate: InputUpdateArgs<T>;
   validationStateChanged: ValidationStateChangedArgs;
 }
-type HandlerMap = {
-  [Property in keyof EventArgsMap]: (args: EventArgsMap[Property]) => void;
+type HandlerMap<T extends StateInput> = {
+  [Property in keyof EventArgsMap<T>]: (args: EventArgsMap<T>[Property]) => void;
 };
 
 class State {
@@ -153,17 +166,17 @@ class State {
     });
   };
 
-  on<T extends keyof HandlerMap>(eventName: T, handler: HandlerMap[T]) {
+  on<T extends keyof HandlerMap<any>>(eventName: T, handler: HandlerMap<any>[T]) {
     this._emitter.on(eventName, handler);
   }
-  once<T extends keyof HandlerMap>(eventName: T, handler: HandlerMap[T]) {
+  once<T extends keyof HandlerMap<any>>(eventName: T, handler: HandlerMap<any>[T]) {
     this._emitter.once(eventName, handler);
   }
-  off<T extends keyof HandlerMap>(eventName: T, handler: HandlerMap[T]) {
+  off<T extends keyof HandlerMap<any>>(eventName: T, handler: HandlerMap<any>[T]) {
     this._emitter.off(eventName, handler);
   }
 
-  private onStateItemUpdated = async (args: InputUpdateArgs) => {
+  private onStateItemUpdated = async (args: InputUpdateArgs<any>) => {
     this._state[args.item.id].value = args.newValue;
     const valid = this._validator(this.valueMap);
     console.log('Valid: ' + valid);

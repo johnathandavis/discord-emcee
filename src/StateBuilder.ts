@@ -3,7 +3,8 @@ import {
   StateDefinition,
   StateInput,
   OptionStateInput,
-  UserStateInput
+  UserStateInput,
+  User
 } from './Shared';
 
 class MCType<T extends MCRawShape, Output = any> {
@@ -55,7 +56,7 @@ function optionInput<TOption>(
 
 type UserSI = Omit<UserStateInput, 'id'>;
 type UserCreateOptions = Omit<UserSI, 'type'>;
-class MCUser extends MCInputType<UserSI, boolean> {
+class MCUser extends MCInputType<UserSI, User> {
   constructor(createOptions: UserCreateOptions) {
     super({
       ...createOptions,

@@ -1,8 +1,6 @@
 import { createUserSelect } from '../../src/ui/DiscordSelectables';
-import { IOption, OptionStateInput, User, UserStateInput } from '../../src/Shared';
-import { 
-    ComponentType,
-UserSelectMenuComponent, APIUserSelectComponent } from 'discord.js';
+import { User, UserStateInput } from '../../src/Shared';
+import { ComponentType } from 'discord.js';
 import { cMatches } from './Utils';
 
 const MinimalUserState: UserStateInput = {

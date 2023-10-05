@@ -9,6 +9,7 @@ import {
 import type {
   EmceeUserInterface,
   InputUpdateArgs,
+  StateInput,
   StateValueMap
 } from './Shared';
 import { createUI } from './ui';
@@ -93,7 +94,7 @@ class EmceeManager<T extends MCSchema<MCRawShape>> {
     });
   };
 
-  private stateUpdated = async (args: InputUpdateArgs) => {
+  private stateUpdated = async <T extends StateInput>(args: InputUpdateArgs<T>) => {
     console.debug('Emcee received state item update:');
     console.debug(args.item);
     console.debug(`From: '${args.oldValue}' to '${args.newValue}'`);
