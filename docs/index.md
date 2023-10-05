@@ -4,3 +4,9 @@
 
 ## API Reference
 
+## Packages
+
+|  Package | Description |
+|  --- | --- |
+|  [@johndavisdev/discord-emcee](./discord-emcee.md) |  |
+

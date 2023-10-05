@@ -134,5 +134,4 @@ dist
 .DS_Store
 **/.DS_Store
 reports/
-scripts/tmp
-tmp/
+temp/
