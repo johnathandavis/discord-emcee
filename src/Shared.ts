@@ -3,8 +3,12 @@ import {
   ButtonInteraction,
   StringSelectMenuInteraction,
   InteractionUpdateOptions,
-  InteractionResponse
+  InteractionResponse,
+  UserSelectMenuInteraction
 } from 'discord.js';
+
+const UserBrand: unique symbol = Symbol();
+type User = string & { [UserBrand]: never };
 
 type IOption<T> = {
   result: T;
@@ -18,6 +22,17 @@ type OptionStateInput<T = any> = {
   placeholder?: string;
   values: IOption<T>[];
   value?: T | null;
+  disabled?: boolean;
+};
+
+type UserStateInput = {
+  id: string;
+  type: 'User';
+  value?: User[];
+  disabled?: boolean;
+  minValues?: number;
+  maxValues?: number;
+  placeholder?: string;
 };
 type BooleanStateInput = {
   id: string;
@@ -32,7 +47,7 @@ type BooleanStateInput = {
     text?: string;
   };
 };
-type StateInput = OptionStateInput | BooleanStateInput;
+type StateInput = OptionStateInput | BooleanStateInput | UserStateInput;
 type StateValue = StateInput['value'];
 type StateDefinition = {
   inputs: StateInput[];
@@ -41,11 +56,11 @@ type StateValueMap = Record<string, StateValue>;
 
 type InteractionOfValue<T extends StateValue> = T extends IOption<any>
   ? StringSelectMenuInteraction
+  : T extends User
+  ? UserSelectMenuInteraction
   : ButtonInteraction;
 
-type InteractionOfInput<T extends StateInput> = T['value'] extends IOption<any>
-  ? StringSelectMenuInteraction
-  : ButtonInteraction;
+type InteractionOfInput<T extends StateInput> = InteractionOfValue<T>;
 
 type UpdateParam = InteractionUpdateOptions;
 type Updater = (p: UpdateParam) => Promise<InteractionResponse>;
@@ -80,6 +95,8 @@ export type {
   InteractionOfInput,
   BooleanStateInput,
   OptionStateInput,
+  UserStateInput,
+  User,
   IOption,
   UpdateParam,
   Updater,

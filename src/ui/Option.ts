@@ -15,6 +15,7 @@ const createOption = (
   }
   let options = input.values.map((v) => createOptionValue(v, selectedValue));
   eb.addOptions(options);
+  eb.setDisabled(input.disabled ?? false);
   return eb;
 };
 

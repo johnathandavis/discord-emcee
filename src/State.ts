@@ -47,6 +47,14 @@ type ComponentTypeOf<T extends StateInput> = T['type'] extends 'Boolean'
   ? ComponentType.Button
   : T['type'] extends 'Options'
   ? ComponentType.StringSelect
+  : T['type'] extends 'User'
+  ? ComponentType.UserSelect
+  : T['type'] extends 'Channel'
+  ? ComponentType.ChannelSelect
+  : T['type'] extends 'Role'
+  ? ComponentType.RoleSelect
+  : T['type'] extends 'Mentionable'
+  ? ComponentType.MentionableSelect
   : never;
 
 function toComponentType<T extends StateInput>(
@@ -57,6 +65,8 @@ function toComponentType<T extends StateInput>(
       return ComponentType.Button as unknown as ComponentTypeOf<T>;
     case 'Option':
       return ComponentType.StringSelect as unknown as ComponentTypeOf<T>;
+    case 'User':
+      return ComponentType.UserSelect as unknown as ComponentTypeOf<T>;
   }
 }
 

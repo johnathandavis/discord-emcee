@@ -10,14 +10,20 @@ import {
   StateValue,
   IOption,
   OptionStateInput,
-  BooleanStateInput
+  BooleanStateInput,
+  UserStateInput,
+  User
 } from '../Shared';
 import { createButton } from './Button';
 import { createOption } from './Option';
 import { createSubmit } from './Submit';
+import { createUserSelect, ExtendedBuilder } from './DiscordSelectables';
 import { MCSchema, MCRawShape, Infer } from '../StateBuilder';
 
-type Component = StringSelectMenuBuilder | ButtonBuilder;
+type Component =
+  | StringSelectMenuBuilder
+  | ButtonBuilder
+  | ExtendedBuilder<'user'>;
 type Row = ActionRowBuilder<Component>;
 type Components = Row[];
 
@@ -25,6 +31,8 @@ type ComponentBuildFor<T extends StateInput> = T extends OptionStateInput
   ? StringSelectMenuBuilder
   : T extends BooleanStateInput
   ? ButtonBuilder
+  : T extends UserStateInput
+  ? ExtendedBuilder<'user'>
   : never;
 
 type InputFactory = {
@@ -44,6 +52,9 @@ const defaultInstanceFactory: InputFactory = {
   },
   Option: (b: OptionStateInput, currentValue: any | undefined) => {
     return createOption(b, currentValue);
+  },
+  User: (b: UserStateInput, currentValue: User[] | undefined) => {
+    return createUserSelect(b, currentValue);
   }
 };
 
@@ -80,8 +91,10 @@ const createUIInput = (
 ): Component => {
   if (input.type === 'Boolean') {
     return createButton(input, currentValue as boolean);
-  } else {
+  } else if (input.type === 'Option') {
     return createOption(input, currentValue as IOption<any>);
+  } else {
+    return createUserSelect(input, currentValue);
   }
 };
 

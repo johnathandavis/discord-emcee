@@ -17,6 +17,7 @@
 |  [boolInput(options)](./discord-emcee.sb.boolinput.md) |  |
 |  [createSchema(d)](./discord-emcee.sb.createschema.md) |  |
 |  [optionInput(options)](./discord-emcee.sb.optioninput.md) |  |
+|  [userInput(options)](./discord-emcee.sb.userinput.md) |  |
 
 ## Type Aliases
 

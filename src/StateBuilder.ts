@@ -2,7 +2,9 @@ import {
   BooleanStateInput,
   StateDefinition,
   StateInput,
-  OptionStateInput
+  OptionStateInput,
+  UserStateInput,
+  User
 } from './Shared';
 
 class MCType<T extends MCRawShape, Output = any> {
@@ -52,6 +54,20 @@ function optionInput<TOption>(
   return new MCOption(options);
 }
 
+type UserSI = Omit<UserStateInput, 'id'>;
+type UserCreateOptions = Omit<UserSI, 'type'>;
+class MCUser extends MCInputType<UserSI, boolean> {
+  constructor(createOptions: UserCreateOptions) {
+    super({
+      ...createOptions,
+      type: 'User'
+    });
+  }
+}
+function userInput(options: UserCreateOptions): MCUser {
+  return new MCUser(options);
+}
+
 type Infer<T extends MCType<any> | MCInputType<any>> = T['_output'];
 
 type MCInputAny = MCInputType<any>;
@@ -94,4 +110,5 @@ const s = createSchema({
 
 type SType = Infer<typeof s>;
 
-export { createSchema, boolInput, optionInput, MCSchema, MCRawShape, Infer };
+export { createSchema, boolInput, optionInput, userInput };
+export type { MCSchema, MCRawShape, Infer };
