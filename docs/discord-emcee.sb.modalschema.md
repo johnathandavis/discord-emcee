@@ -7,7 +7,13 @@
 **Signature:**
 
 ```typescript
-declare class ModalSchema<TShape extends ModalRawShape> extends Schema<TShape, TShape> 
+declare class ModalSchema<TShape extends ModalRawShape> extends Schema<TShape, TShape, ModalStateDefinition<ModalRawShape>> 
 ```
-**Extends:** Schema&lt;TShape, TShape&gt;
+**Extends:** Schema&lt;TShape, TShape, ModalStateDefinition&lt;[ModalRawShape](./discord-emcee.sb.modalrawshape.md)<!-- -->&gt;&gt;
+
+## Properties
+
+|  Property | Modifiers | Type | Description |
+|  --- | --- | --- | --- |
+|  [toStateDefinition](./discord-emcee.sb.modalschema.tostatedefinition.md) |  | () =&gt; ModalStateDefinition&lt;[ModalRawShape](./discord-emcee.sb.modalrawshape.md)<!-- -->&gt; |  |
 

@@ -1,6 +1,6 @@
-import { promptInline } from './prompts';
+import { promptInline, promptModal } from './prompts';
 import * as sb from './schema';
 import type { IOption } from './Shared';
 
-export { promptInline, sb };
+export { promptInline, promptModal, sb };
 export type { IOption };

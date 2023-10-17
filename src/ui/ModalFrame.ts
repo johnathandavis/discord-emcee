@@ -1,53 +1,25 @@
+import { ActionRowBuilder, ModalBuilder, TextInputBuilder } from 'discord.js';
 import {
-  StringSelectMenuBuilder,
-  ActionRowBuilder,
-  ButtonBuilder,
-  TextInputBuilder
-} from 'discord.js';
-import {
-  OptionStateInput,
-  BooleanStateInput,
-  UserStateInput,
-  ChannelStateInput,
-  RoleStateInput,
-  MentionableStateInput,
   StringStateInput,
-  ModalStateInput
+  ModalStateInput,
+  ModalStateDefinition
 } from '../Shared';
-import { InlineMessagePromptOptions } from '../prompts/Shared';
-import { ExtendedBuilder } from './DiscordSelectables';
-import { Infer, ModalSchema } from '../schema/SchemaBuilder';
-import { ModalRawShape } from 'schema/Core';
+import {
+  InlineMessagePromptOptions,
+  ModalPromptOptions
+} from '../prompts/Shared';
+import { ModalSchema } from '../schema/SchemaBuilder';
 import { createString } from './String';
-import { defaultMCInstanceFactory } from './MCFrame';
-import type { Component as MCComponent } from './MCFrame';
 
-type ModalComponent = MCComponent | TextInputBuilder;
+type ModalComponent = TextInputBuilder;
 type ModalRow<T extends ModalComponent> = ActionRowBuilder<T>;
 type ModalComponents = ModalRow<any>[];
 
 type ModalComponentBuildFor<T extends ModalStateInput> =
-  T extends OptionStateInput
-    ? StringSelectMenuBuilder
-    : T extends BooleanStateInput
-    ? ButtonBuilder
-    : T extends UserStateInput
-    ? ExtendedBuilder<'user'>
-    : T extends ChannelStateInput
-    ? ExtendedBuilder<'channel'>
-    : T extends RoleStateInput
-    ? ExtendedBuilder<'role'>
-    : T extends MentionableStateInput
-    ? ExtendedBuilder<'mentionable'>
-    : T extends StringStateInput
-    ? TextInputBuilder
-    : never;
+  T extends StringStateInput ? TextInputBuilder : never;
 
 type ModalInputFactory = {
-  [IT in ModalStateInput as IT['type']]: (
-    i: IT,
-    v: IT['value']
-  ) => ModalComponentBuildFor<IT>;
+  [IT in ModalStateInput as IT['type']]: (i: IT) => ModalComponentBuildFor<IT>;
 };
 
 function modalRow<T extends ModalComponent>(c: T): ModalRow<T> {
@@ -55,26 +27,21 @@ function modalRow<T extends ModalComponent>(c: T): ModalRow<T> {
 }
 
 const defaultModalInstanceFactory: ModalInputFactory = {
-  ...defaultMCInstanceFactory,
-  String: (b: StringStateInput, currentValue: string | undefined) => {
-    return createString(b, currentValue!);
+  String: (b: StringStateInput) => {
+    return createString(b);
   }
 };
 
-function createModalUI<
-  TShape extends ModalRawShape = ModalRawShape,
-  T extends ModalSchema<TShape> = ModalSchema<TShape>
->(
-  uiDef: InlineMessagePromptOptions,
+type PromptOptionsWithCustomId = ModalPromptOptions & {
+  customId: string;
+};
+function createModalUI<T extends ModalSchema<any>>(
+  uiDef: PromptOptionsWithCustomId,
   schema: T,
-  currentState: Infer<T>,
-  validator: (s: Infer<T>) => boolean,
   inputFactory?: ModalInputFactory
-): ModalComponents {
+): ModalBuilder {
   const iff = inputFactory ?? defaultModalInstanceFactory;
-  const sd = schema.toStateDefinition();
-
-  const validated = validator(currentState);
+  const sd = schema.toStateDefinition() as ModalStateDefinition<any>;
   const rows: ModalComponents = [];
 
   sd.inputs.forEach((i) => {
@@ -82,9 +49,13 @@ function createModalUI<
       i: ModalStateInput,
       v: any | undefined
     ) => ModalComponent;
-    rows.push(modalRow(iffFunc(i, currentState[i.id])));
+    rows.push(modalRow(iffFunc(i, undefined)));
   });
-  return rows;
+  const builder = new ModalBuilder();
+  builder.setComponents(rows);
+  builder.setTitle(uiDef.title);
+  builder.setCustomId(uiDef.customId);
+  return builder;
 }
 
 export { createModalUI };

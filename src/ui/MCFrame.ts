@@ -20,7 +20,8 @@ import {
   RoleStateInput,
   MentionableStateInput,
   Mentionable,
-  Role
+  Role,
+  MCStateDefinition
 } from '../Shared';
 import { InlineMessagePromptOptions } from '../prompts/Shared';
 import { createButton } from './Button';
@@ -34,6 +35,9 @@ import {
   ExtendedBuilder
 } from './DiscordSelectables';
 import { MCSchema, Infer } from '../schema/SchemaBuilder';
+
+const DefaultTimedOutText = 'Took too long...';
+const DefaultCompletedText = 'Submitted...';
 
 type Component =
   | StringSelectMenuBuilder
@@ -90,19 +94,24 @@ const defaultMCInstanceFactory: InputFactory = {
   }
 };
 
+type UIStatus = 'Open' | 'Completed' | 'TimedOut';
 function createComponentUI<T extends MCSchema<any>>(
   uiDef: InlineMessagePromptOptions,
   schema: T,
   currentState: Infer<T>,
   validator: (s: Infer<T>) => boolean,
+  uiStatus: UIStatus,
   inputFactory?: InputFactory
 ): BaseMessageOptions {
   const iff = inputFactory ?? defaultMCInstanceFactory;
-  const sd = schema.toStateDefinition();
+  const sd = schema.toStateDefinition() as MCStateDefinition<any>;
   console.log(`State:`);
   console.log(currentState);
   const validated = validator(currentState);
-  const submitBtn = createSubmit(uiDef.submit ?? {}, validated);
+  const submitBtn = createSubmit(
+    uiDef.submit ?? {},
+    validated && uiStatus === 'Open'
+  );
   const components: Components = [];
 
   sd.inputs.forEach((i) => {
@@ -110,15 +119,23 @@ function createComponentUI<T extends MCSchema<any>>(
       i: MCStateInput,
       v: any | undefined
     ) => Component;
-    components.push(row(iffFunc(i, currentState[i.id])));
+    const mcBuilder = iffFunc(i, currentState[i.id]);
+    if (uiStatus === 'Completed' || uiStatus === 'TimedOut') {
+      mcBuilder.setDisabled(true);
+    }
+    components.push(row(mcBuilder));
   });
   components.push(row(submitBtn));
+  let title: string = uiDef.title;
+  if (uiStatus === 'Completed') {
+    title = uiDef.submit?.submittedText ?? DefaultCompletedText;
+  } else if (uiStatus === 'TimedOut') {
+    title = uiDef.timeout?.timeoutText ?? DefaultTimedOutText;
+  }
   const ui = {
-    content: uiDef.title,
+    content: title,
     components: components
   };
-  console.log('UI:');
-  console.log(JSON.stringify(ui));
   return ui;
 }
 
@@ -126,5 +143,10 @@ function row<T extends Component>(c: T): ActionRowBuilder<T> {
   return new ActionRowBuilder<T>().addComponents(c);
 }
 
-export { createComponentUI, defaultMCInstanceFactory };
-export type { InputFactory, Component, Row };
+export {
+  createComponentUI,
+  defaultMCInstanceFactory,
+  DefaultCompletedText,
+  DefaultTimedOutText
+};
+export type { InputFactory, Component, Row, UIStatus };

@@ -7,5 +7,5 @@
 **Signature:**
 
 ```typescript
-type Infer<T extends Schema<any, any> | MCInputType<any>> = T['_output'];
+type Infer<T extends Schema<any, any, any> | MCInputType<any>> = T['_output'];
 ```

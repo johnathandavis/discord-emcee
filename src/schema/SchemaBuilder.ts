@@ -11,7 +11,9 @@ import {
   MentionableStateInput,
   Mentionable,
   Role,
-  StringStateInput
+  StringStateInput,
+  ModalStateDefinition,
+  ModalStateInput
 } from '../Shared';
 import {
   MCType,
@@ -112,7 +114,7 @@ function mentionableInput(options: MentionableCreateOptions): MCMentionable {
 }
 
 type StringSI = Omit<StringStateInput, 'id'>;
-type StringCreateOptions = Omit<StringSI, 'type'>;
+type StringCreateOptions = Omit<StringSI, 'type' | 'required'>;
 class ModalString extends ModalInputType<StringSI, string> {
   constructor(createOptions: StringCreateOptions) {
     super({
@@ -125,16 +127,26 @@ function stringInput(options: StringCreateOptions): ModalString {
   return new ModalString(options);
 }
 
-type Infer<T extends Schema<any, any> | MCInputType<any>> = T['_output'];
+type Infer<T extends Schema<any, any, any> | MCInputType<any>> = T['_output'];
 
-class Schema<
+abstract class Schema<
   RootShape extends MCRawShape | ModalRawShape,
   TShape extends RootShape,
+  TStateDefinition,
   Output = ObjectOutput<TShape>
 > extends MCType<TShape, Output> {
-  private _validator: SchemaValidator<Output> | undefined = undefined;
+  abstract toStateDefinition(): TStateDefinition;
+}
 
-  toStateDefinition(): MCStateDefinition<Output> {
+class MCSchema<TShape extends MCRawShape> extends Schema<
+  TShape,
+  TShape,
+  MCStateDefinition<MCRawShape>
+> {
+  private _validator: SchemaValidator<ObjectOutput<TShape>> | undefined =
+    undefined;
+
+  toStateDefinition = (): MCStateDefinition<MCRawShape> => {
     const inputs = Object.keys(this._shape).map((k) => {
       const input = this._shape[k];
       const si = input.stateInput;
@@ -144,27 +156,45 @@ class Schema<
       };
       return siWithId;
     }) as MCStateInput[];
+    const validator = this._validator
+      ? this._validator
+      : buildDefaultSchemaValidator<MCRawShape, ObjectOutput<MCRawShape>>(
+          this._shape
+        );
     return {
       inputs: inputs,
-      validator: this._validator
-        ? this._validator
-        : buildDefaultSchemaValidator<TShape, Output>(this._shape)
-    };
-  }
+      validator: validator
+    } as MCStateDefinition<MCRawShape>;
+  };
 
-  validator = (
-    validator: SchemaValidator<Output>
-  ): Schema<RootShape, TShape, Output> => {
+  validator = (validator: SchemaValidator<ObjectOutput<TShape>>): this => {
     this._validator = validator;
     return this;
   };
 }
-
-class MCSchema<TShape extends MCRawShape> extends Schema<TShape, TShape> {}
 class ModalSchema<TShape extends ModalRawShape> extends Schema<
   TShape,
-  TShape
-> {}
+  TShape,
+  ModalStateDefinition<ModalRawShape>
+> {
+  toStateDefinition = (): ModalStateDefinition<ModalRawShape> => {
+    const inputs = Object.keys(this._shape).map((k) => {
+      const input = this._shape[k];
+      const si = input.stateInput;
+      const siWithId: ModalStateInput = {
+        ...si,
+        id: k
+      };
+      if ('_required' in si) {
+        siWithId['required'] = si._required;
+      }
+      return siWithId;
+    }) as ModalStateInput[];
+    return {
+      inputs: inputs
+    } as ModalStateDefinition<ModalRawShape>;
+  };
+}
 
 function createMCSchema<T extends MCRawShape>(d: T): MCSchema<T> {
   return new MCSchema<T>(d);
@@ -184,4 +214,12 @@ export {
   channelInput,
   mentionableInput
 };
-export type { MCSchema, ModalSchema, MCRawShape, MCBoolean, MCOption, Infer };
+export type {
+  MCSchema,
+  ModalSchema,
+  MCRawShape,
+  ModalRawShape,
+  MCBoolean,
+  MCOption,
+  Infer
+};

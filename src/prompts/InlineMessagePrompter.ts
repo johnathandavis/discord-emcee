@@ -1,8 +1,4 @@
-import {
-  ChatInputCommandInteraction,
-  ComponentType,
-  InteractionResponse
-} from 'discord.js';
+import { ChatInputCommandInteraction, ComponentType } from 'discord.js';
 import * as sb from '../schema/SchemaBuilder';
 import type {
   MCStateInput,
@@ -14,6 +10,7 @@ import { State } from '../state';
 import { createComponentUI } from '../ui';
 import { ObjectOutput } from '../schema/Core';
 
+const DefaultTimeoutSeconds = 60;
 type InteractionTypes = MCInteractionOfInput<MCStateInput>;
 
 /**
@@ -38,15 +35,15 @@ async function promptInline<
   let mcInteraction: InteractionTypes | undefined = undefined;
   const stateDefinition = schema.toStateDefinition();
   let state = new State<TShape>(stateDefinition);
-
-  const promptResponse = await interaction.reply({
-    ...createComponentUI(
+  const promptResponse = await interaction.reply(
+    createComponentUI(
       uiOptions,
       schema,
       state.valueMap as Output,
-      stateDefinition.validator
+      stateDefinition.validator,
+      'Open'
     )
-  });
+  );
 
   const stateUpdated = async <TState extends MCStateInput>(
     args: InputUpdateArgs<TState>
@@ -55,14 +52,15 @@ async function promptInline<
     console.debug(args.item);
     console.debug(`From: '${args.oldValue}' to '${args.newValue}'`);
     mcInteraction = args.interaction;
-    await args.interaction.update({
-      ...createComponentUI(
+    await args.interaction.update(
+      createComponentUI(
         uiOptions,
         schema,
         state.valueMap as Output,
-        stateDefinition.validator
+        stateDefinition.validator,
+        'Open'
       )
-    });
+    );
   };
 
   state.on('stateUpdate', stateUpdated);
@@ -76,21 +74,42 @@ async function promptInline<
     componentType: ComponentType.Button,
     filter: (b) => b.customId === 'submit'
   });
+  const completeInteraction = async (i: InteractionTypes) => {
+    await i.update(
+      createComponentUI(
+        uiOptions,
+        schema,
+        state.valueMap as Output,
+        stateDefinition.validator,
+        'Completed'
+      )
+    );
+  };
+  const timeoutInteraction = async (i: InteractionTypes) => {
+    await i.update(
+      createComponentUI(
+        uiOptions,
+        schema,
+        state.valueMap as Output,
+        stateDefinition.validator,
+        'TimedOut'
+      )
+    );
+  };
+  const timeoutMs =
+    uiOptions.timeout?.durationSeconds ?? DefaultTimeoutSeconds * 1000;
   return new Promise<Output>((resolve, reject) => {
     const abort = () => {
       cleanup();
       if (mcInteraction) {
-        mcInteraction!
-          .update({
-            content: 'You took too long! Try again.'
-          })
+        timeoutInteraction(mcInteraction)
           .then(() => reject('Timed out!'))
           .catch((err) => reject(err));
       } else {
         reject('Timed out!');
       }
     };
-    const timeoutId = setTimeout(() => abort(), 1000 * 60);
+    const timeoutId = setTimeout(() => abort(), timeoutMs);
     const cleanup = () => {
       try {
         c.dispose(interaction!);
@@ -103,9 +122,7 @@ async function promptInline<
     c.on('collect', async (i) => {
       const sv = state.valueMap;
       cleanup();
-      i.update({
-        content: 'Starting conversation...'
-      })
+      completeInteraction(i)
         .then(() => resolve(sv as Output))
         .catch((err) => reject(err));
     });

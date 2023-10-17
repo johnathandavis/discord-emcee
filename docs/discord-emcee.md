@@ -9,6 +9,7 @@
 |  Function | Description |
 |  --- | --- |
 |  [promptInline(schema, uiOptions, interaction)](./discord-emcee.promptinline.md) | Prompt a Discord user information via a MessageComponent. |
+|  [promptModal(schema, uiOptions, interaction)](./discord-emcee.promptmodal.md) | Prompt a Discord user information via a MessageComponent. |
 
 ## Namespaces
 

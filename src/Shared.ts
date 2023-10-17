@@ -8,7 +8,8 @@ import {
   RoleSelectMenuInteraction,
   ChannelSelectMenuInteraction,
   MentionableSelectMenuInteraction,
-  ChannelType
+  ChannelType,
+  TextInputStyle
 } from 'discord.js';
 
 const UserBrand: unique symbol = Symbol();
@@ -27,7 +28,13 @@ type Role = string & { [RoleBrand]: never };
 type StringStateInput = {
   id: string;
   type: 'String';
-  value: string;
+  label: string;
+  placeholder?: string;
+  value?: string;
+  style?: TextInputStyle;
+  minLength?: number;
+  maxLength?: number;
+  required?: boolean;
 };
 
 type IOption<T> = {
@@ -89,10 +96,13 @@ type MCStateInput =
   | RoleStateInput
   | ChannelStateInput
   | MentionableStateInput;
-type ModalStateInput = MCStateInput | StringStateInput;
+type ModalStateInput = StringStateInput;
 type MCStateDefinition<T> = {
   inputs: MCStateInput[];
   validator: (s: T) => boolean;
+};
+type ModalStateDefinition<T> = {
+  inputs: ModalStateInput[];
 };
 type MCStateValueMap = Record<string, MCStateInput['value']>;
 
@@ -130,6 +140,7 @@ type ValidationStateChangedArgs = {
 
 export type {
   MCStateDefinition,
+  ModalStateDefinition,
   MCStateInput,
   ModalStateInput,
   MCStateValueMap,

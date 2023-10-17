@@ -33,4 +33,5 @@
 |  --- | --- |
 |  [Infer](./discord-emcee.sb.infer.md) |  |
 |  [MCRawShape](./discord-emcee.sb.mcrawshape.md) |  |
+|  [ModalRawShape](./discord-emcee.sb.modalrawshape.md) |  |
 

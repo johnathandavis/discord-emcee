@@ -7,7 +7,14 @@
 **Signature:**
 
 ```typescript
-declare class MCSchema<TShape extends MCRawShape> extends Schema<TShape, TShape> 
+declare class MCSchema<TShape extends MCRawShape> extends Schema<TShape, TShape, MCStateDefinition<MCRawShape>> 
 ```
-**Extends:** Schema&lt;TShape, TShape&gt;
+**Extends:** Schema&lt;TShape, TShape, MCStateDefinition&lt;[MCRawShape](./discord-emcee.sb.mcrawshape.md)<!-- -->&gt;&gt;
+
+## Properties
+
+|  Property | Modifiers | Type | Description |
+|  --- | --- | --- | --- |
+|  [toStateDefinition](./discord-emcee.sb.mcschema.tostatedefinition.md) |  | () =&gt; MCStateDefinition&lt;[MCRawShape](./discord-emcee.sb.mcrawshape.md)<!-- -->&gt; |  |
+|  [validator](./discord-emcee.sb.mcschema.validator.md) |  | (validator: SchemaValidator&lt;ObjectOutput&lt;TShape&gt;&gt;) =&gt; this |  |
 

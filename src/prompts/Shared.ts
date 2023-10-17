@@ -5,7 +5,20 @@ type InlineMessagePromptOptions = {
   submit?: {
     buttonText?: string;
     buttonStyle?: ButtonStyle;
+    submittedText?: string;
+  };
+  timeout?: {
+    durationSeconds?: number;
+    timeoutText?: string;
   };
 };
 
-export type { InlineMessagePromptOptions };
+type ModalPromptOptions = {
+  title: string;
+  /**
+   * @default 60
+   */
+  timeoutSeconds?: number;
+};
+
+export type { InlineMessagePromptOptions, ModalPromptOptions };

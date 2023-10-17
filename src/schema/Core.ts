@@ -30,27 +30,19 @@ class MCInputType<SI extends Omit<MCStateInput, 'id'>, Output = any> {
   }
 }
 
-class ModalInputType<SI extends Omit<ModalStateInput, 'id'>, Output = any> {
+type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+class ModalInputType<
+  SI extends Omit<ModalStateInput, 'id' | 'required'>,
+  Output = any
+> {
   readonly _output!: Output;
-  private _validationOptions: InputValidationOptions<Output> = {
-    required: true
-  };
-
+  _required: boolean = true;
   constructor(readonly stateInput: SI) {}
 
   optional = (): this => {
-    this._validationOptions = { ...this._validationOptions, required: false };
+    this._required = false;
     return this;
   };
-
-  validator = (v: InputValidator<Output>): this => {
-    this._validationOptions = { ...this._validationOptions, validate: v };
-    return this;
-  };
-
-  get validation(): InputValidationOptions<Output> {
-    return this._validationOptions;
-  }
 }
 
 type MCInputAny = MCInputType<any>;
