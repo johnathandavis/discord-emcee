@@ -3,7 +3,11 @@ import {
   InteractionCollector,
   ComponentType,
   InteractionResponse,
-  UserSelectMenuInteraction
+  UserSelectMenuInteraction,
+  MessageComponentType,
+  RoleSelectMenuInteraction,
+  ChannelSelectMenuInteraction,
+  MentionableSelectMenuInteraction
 } from 'discord.js';
 import {
   MCStateInput,
@@ -11,7 +15,12 @@ import {
   InputUpdateArgs,
   InputUpdatedHandler,
   UserStateInput,
-  MCInteractionOfInput
+  MCInteractionOfInput,
+  RoleStateInput,
+  ChannelStateInput,
+  Mentionable,
+  User,
+  Role
 } from '../Shared';
 import evt from 'events';
 import type {
@@ -48,7 +57,7 @@ function createAttachment<T extends MCStateInput>(
   r: InteractionResponse,
   handler: InputUpdatedHandler<T>
 ): InternalCollector {
-  const c = r.createMessageComponentCollector<ComponentType.Button>({
+  const c = r.createMessageComponentCollector<MessageComponentType>({
     componentType: utils.toComponentType(k.type),
     filter: (b) => b.customId === k.id
   }) as unknown as InternalCollector;
@@ -88,6 +97,47 @@ function createAttachment<T extends MCStateInput>(
       const usi = k as UserStateInput;
       const currentValue = usi.value ?? undefined;
       const selection = i.values ?? undefined;
+      args = {
+        item: k,
+        oldValue: currentValue,
+        newValue: selection as unknown as T['value'],
+        interaction: i
+      } as InputUpdateArgs<T>;
+    } else if (i.componentType === ComponentType.RoleSelect) {
+      const roles = (i as RoleSelectMenuInteraction).roles!;
+      console.log(roles);
+      const usi = k as RoleStateInput;
+      const currentValue = usi.value ?? undefined;
+      const selection = i.values ?? undefined;
+      args = {
+        item: k,
+        oldValue: currentValue,
+        newValue: selection as unknown as T['value'],
+        interaction: i
+      } as InputUpdateArgs<T>;
+    } else if (i.componentType === ComponentType.ChannelSelect) {
+      const channels = (i as ChannelSelectMenuInteraction).channels!;
+      console.log(channels);
+      const usi = k as ChannelStateInput;
+      const currentValue = usi.value ?? undefined;
+      const selection = i.values ?? undefined;
+      args = {
+        item: k,
+        oldValue: currentValue,
+        newValue: selection as unknown as T['value'],
+        interaction: i
+      } as InputUpdateArgs<T>;
+    } else if (i.componentType === ComponentType.MentionableSelect) {
+      const users = i.users.map((u) => {
+        return { id: u.id as User, type: 'user' } as Mentionable;
+      });
+      const roles = i.roles.map((r) => {
+        return { id: r.id as Role, type: 'role' } as Mentionable;
+      });
+      const mentionables = users.concat(roles);
+      const usi = k as ChannelStateInput;
+      const currentValue = usi.value ?? undefined;
+      const selection = mentionables ?? undefined;
       args = {
         item: k,
         oldValue: currentValue,

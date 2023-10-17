@@ -17,8 +17,9 @@ type User = string & { [UserBrand]: never };
 const ChannelBrand: unique symbol = Symbol();
 type Channel = string & { [ChannelBrand]: never };
 
-const MentionableBrand: unique symbol = Symbol();
-type Mentionable = string & { [MentionableBrand]: never };
+type UserMentionable = { id: User; type: 'user' };
+type RoleMentionable = { id: Role; type: 'role' };
+type Mentionable = UserMentionable | RoleMentionable;
 
 const RoleBrand: unique symbol = Symbol();
 type Role = string & { [RoleBrand]: never };

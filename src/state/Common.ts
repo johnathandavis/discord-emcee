@@ -3,7 +3,10 @@ import {
   ButtonInteraction,
   StringSelectMenuInteraction,
   ComponentType,
-  UserSelectMenuInteraction
+  UserSelectMenuInteraction,
+  ChannelSelectMenuInteraction,
+  RoleSelectMenuInteraction,
+  MentionableSelectMenuInteraction
 } from 'discord.js';
 import type {
   InputUpdateArgs,
@@ -13,7 +16,12 @@ import type {
 } from 'Shared';
 
 type InternalCollector = InteractionCollector<
-  ButtonInteraction | StringSelectMenuInteraction | UserSelectMenuInteraction
+  | ButtonInteraction
+  | StringSelectMenuInteraction
+  | UserSelectMenuInteraction
+  | ChannelSelectMenuInteraction
+  | RoleSelectMenuInteraction
+  | MentionableSelectMenuInteraction
 >;
 type StateValue = MCStateInput['value'];
 type InternalStateItem = {
@@ -36,9 +44,7 @@ type MCComponentTypeOf<T extends MCStateInput> = T['type'] extends 'Boolean'
   ? ComponentType.ChannelSelect
   : T['type'] extends 'Role'
   ? ComponentType.RoleSelect
-  : T['type'] extends 'Mentionable'
-  ? ComponentType.MentionableSelect
-  : never;
+  : ComponentType.MentionableSelect;
 
 type InteractionDeserializer<T extends MCStateInput> = (
   state: T,

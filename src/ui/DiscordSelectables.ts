@@ -1,43 +1,32 @@
 import {
   BaseSelectMenuBuilder,
-  ChannelSelectMenuBuilder,
-  MentionableSelectMenuBuilder,
-  RoleSelectMenuBuilder,
-  UserSelectMenuBuilder,
-  APISelectMenuComponent,
   APIUserSelectComponent,
   APIChannelSelectComponent,
   APIRoleSelectComponent,
   APIMentionableSelectComponent,
-  SelectMenuType,
-  UserSelectMenuComponent,
-  RoleSelectMenuComponent,
-  ChannelSelectMenuComponent,
-  MentionableSelectMenuComponent,
   ComponentType,
   ChannelType
 } from 'discord.js';
 import {
-  OptionStateInput,
-  IOption,
-  User,
+  User as UserId,
+  Mentionable as MentionableId,
   UserStateInput,
-  BooleanStateInput,
   ChannelStateInput,
-  Channel,
+  Channel as ChannelId,
   RoleStateInput,
   MentionableStateInput,
-  Role,
-  Mentionable
+  Role as RoleId
 } from '../Shared';
 
 type SelectableType = 'user' | 'role' | 'channel' | 'mentionable';
-type DefaultVal<T extends SelectableType> = { id: string; type: T };
-type ApiComponents =
-  | APIUserSelectComponent
-  | APIRoleSelectComponent
-  | APIChannelSelectComponent
-  | APIMentionableSelectComponent;
+
+type DefaultValueTypeFor<T extends SelectableType> = T extends 'mentionable'
+  ? undefined
+  : T;
+type DefaultVal<T extends SelectableType> = {
+  id: string;
+  type: DefaultValueTypeFor<T>;
+};
 type ComponentFor<T extends SelectableType> = T extends 'user'
   ? APIUserSelectComponent
   : T extends 'role'
@@ -47,33 +36,36 @@ type ComponentFor<T extends SelectableType> = T extends 'user'
   : T extends 'mentionable'
   ? APIMentionableSelectComponent
   : never;
-type DefaultValueTypeFor<T extends ApiComponents> =
-  T extends APIUserSelectComponent
-    ? 'user'
-    : T extends APIRoleSelectComponent
-    ? 'role'
-    : T extends APIChannelSelectComponent
-    ? 'channel'
-    : T extends APIMentionableSelectComponent
-    ? 'mentionable'
-    : never;
-type DefaultValueFor<T extends ApiComponents> = DefaultVal<
-  DefaultValueTypeFor<T>
->;
 type StateInputFor<T extends SelectableType> = T extends 'user'
   ? UserStateInput
   : T extends 'channel'
   ? ChannelStateInput
   : T extends 'role'
   ? RoleStateInput
-  : T extends 'mentionable'
-  ? MentionableStateInput
-  : never;
+  : MentionableStateInput;
 
-const toDf = <T extends SelectableType>(id: string, t: T): DefaultVal<T> => {
+type DiscordDefaultTypeFor<T extends SelectableType> = T extends 'user'
+  ? UserId
+  : T extends 'channel'
+  ? ChannelId
+  : T extends 'role'
+  ? RoleId
+  : MentionableId;
+
+const toDf = <T extends SelectableType>(
+  id: DiscordDefaultTypeFor<T>,
+  t: DefaultValueTypeFor<T>
+): DefaultVal<T> => {
+  if (typeof id === 'object') {
+    const mentionId = id as MentionableId;
+    return {
+      id: mentionId.id,
+      type: mentionId.type as DefaultValueTypeFor<T>
+    };
+  }
   return {
     id: id,
-    type: t
+    type: t!
   };
 };
 
@@ -94,21 +86,28 @@ type WithDefaultValues<T extends SelectableType> = ComponentFor<T> & {
 };
 
 class ExtendedBuilder<
-  TType extends SelectableType
+  TType extends SelectableType,
+  TVal extends StateInputFor<TType>['value'] = StateInputFor<TType>['value']
 > extends BaseSelectMenuBuilder<ComponentFor<TType>> {
-  private readonly idType: DefaultVal<TType>['type'];
+  private readonly idType: DefaultValueTypeFor<TType>;
   private _defaultValues: DefaultVal<TType>[] | undefined = undefined;
 
-  constructor(idType: DefaultVal<TType>['type']) {
+  constructor(idType: TType) {
     super({
       type: toComponentType(idType) as ComponentFor<TType>['type']
     } as Partial<ComponentFor<TType>>);
-    this.idType = idType;
+    if (idType !== 'mentionable') {
+      this.idType = idType as DefaultValueTypeFor<TType>;
+    } else {
+      this.idType = undefined as DefaultValueTypeFor<TType>;
+    }
   }
 
-  setDefaultValues = (dfs?: User[]) => {
+  setDefaultValues = (dfs?: TVal) => {
     if (dfs) {
-      this._defaultValues = dfs!.map((df) => toDf(df, this.idType));
+      this._defaultValues = dfs!.map((df) =>
+        toDf(df as DiscordDefaultTypeFor<TType>, this.idType)
+      );
     } else {
       this._defaultValues = undefined;
     }
@@ -170,7 +169,7 @@ class ExtendedChannelBuilder extends ExtendedBuilder<'channel'> {
 
 const createUserSelect = (
   input: UserStateInput,
-  currentValues?: User[]
+  currentValues?: UserId[]
 ): ExtendedBuilder<'user'> => {
   const eb = ExtendedBuilder.forUser();
   return createDiscordSelect(input, eb, currentValues);
@@ -178,7 +177,7 @@ const createUserSelect = (
 
 const createChannelSelect = (
   input: ChannelStateInput,
-  currentValues?: Channel[]
+  currentValues?: ChannelId[]
 ): ExtendedChannelBuilder => {
   const cb = ExtendedBuilder.forChannel();
   createDiscordSelect(input, cb, currentValues);
@@ -191,7 +190,7 @@ const createChannelSelect = (
 
 const createRoleSelect = (
   input: RoleStateInput,
-  currentValues?: Role[]
+  currentValues?: RoleId[]
 ): ExtendedBuilder<'role'> => {
   const eb = ExtendedBuilder.forRole();
   return createDiscordSelect(input, eb, currentValues);
@@ -199,24 +198,28 @@ const createRoleSelect = (
 
 const createMentionableSelect = (
   input: MentionableStateInput,
-  currentValues?: Mentionable[]
+  currentValues?: MentionableId[]
 ): ExtendedBuilder<'mentionable'> => {
   const eb = ExtendedBuilder.forMentionable();
   return createDiscordSelect(input, eb, currentValues);
 };
 
-const createDiscordSelect = <T extends SelectableType>(
+const createDiscordSelect = <
+  T extends SelectableType,
+  TVal extends StateInputFor<T>['value'] = StateInputFor<T>['value']
+>(
   input: StateInputFor<T>,
   eb: ExtendedBuilder<T>,
-  currentValues?: StateInputFor<T>['value']
+  currentValues?: TVal
 ): ExtendedBuilder<T> => {
-  const dv = currentValues ?? input.value;
-  const defaultValues: User[] = dv && Array.isArray(dv) ? (dv as User[]) : [];
+  const dv: TVal = currentValues! ?? input.value;
+  const defaultValues: TVal =
+    dv && Array.isArray(dv) ? (dv as TVal) : ([] as unknown as TVal);
   eb.setCustomId(input.id);
   if (input.disabled) {
     eb.setDisabled(input.disabled);
   }
-  if (defaultValues.length > 0) {
+  if (defaultValues!.length > 0) {
     eb.setDefaultValues(defaultValues);
   }
   if (input.maxValues) {
