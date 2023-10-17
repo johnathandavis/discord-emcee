@@ -3,15 +3,20 @@ import * as sb from '../schema/SchemaBuilder';
 import type {
   MCStateInput,
   MCInteractionOfInput,
-  InputUpdateArgs
+  InputUpdateArgs,
+  MCStateDefinition
 } from '../Shared';
 import type { InlineMessagePromptOptions } from './Shared';
+import { TimeOutError } from './Shared';
 import { State } from '../state';
 import { createComponentUI } from '../ui';
 import { ObjectOutput } from '../schema/Core';
 
 const DefaultTimeoutSeconds = 60;
 type InteractionTypes = MCInteractionOfInput<MCStateInput>;
+type CustomStateFactory<TShape extends sb.MCRawShape = sb.MCRawShape> = (
+  sd: MCStateDefinition<sb.MCRawShape>
+) => State<TShape>;
 
 /**
  * Prompt a Discord user information via a MessageComponent.
@@ -34,7 +39,7 @@ async function promptInline<
 ): Promise<Output> {
   let mcInteraction: InteractionTypes | undefined = undefined;
   const stateDefinition = schema.toStateDefinition();
-  let state = new State<TShape>(stateDefinition);
+  let state = stateDefinition.createState();
   const promptResponse = await interaction.reply(
     createComponentUI(
       uiOptions,
@@ -96,17 +101,21 @@ async function promptInline<
       )
     );
   };
-  const timeoutMs =
-    uiOptions.timeout?.durationSeconds ?? DefaultTimeoutSeconds * 1000;
+  const timeoutSec =
+    uiOptions.timeout?.durationSeconds ?? DefaultTimeoutSeconds;
+  const timeoutMs = timeoutSec * 1000;
   return new Promise<Output>((resolve, reject) => {
     const abort = () => {
       cleanup();
+      let timeoutErr = new TimeOutError(
+        `No valid response received before ${timeoutSec}s.`
+      );
       if (mcInteraction) {
         timeoutInteraction(mcInteraction)
           .then(() => reject('Timed out!'))
-          .catch((err) => reject(err));
+          .catch((err) => reject(timeoutErr));
       } else {
-        reject('Timed out!');
+        reject(timeoutErr);
       }
     };
     const timeoutId = setTimeout(() => abort(), timeoutMs);

@@ -1,5 +1,17 @@
 import type { MCStateInput, ModalStateInput } from '../Shared';
 
+type RequiredKeys<T extends object> = {
+  [k in keyof T]: undefined extends T[k] ? never : k;
+}[keyof T];
+
+export type Identity<T> = T;
+export type Flatten<T> = Identity<{ [k in keyof T]: T[k] }>;
+export type WithQuestionMarks<
+  T extends object,
+  R extends keyof T = RequiredKeys<T>
+  // O extends keyof T = optionalKeys<T>
+> = Flatten<Pick<Required<T>, R> & Partial<T>>;
+
 type SchemaValidator<TOut> = (t: TOut) => boolean;
 type InputValidationOptions<TOutput> = {
   required: boolean;
@@ -51,6 +63,13 @@ type RawShape<T> = {
 };
 type ModalRawShape = RawShape<ModalInputType<any>>;
 type MCRawShape = RawShape<MCInputType<any>>;
+
+/*
+type ObjectOutput<Shape extends MCRawShape | ModalRawShape> =
+  WithQuestionMarks<{
+    [k in keyof Shape]: Shape[k]['_output'];
+  }>;
+*/
 
 type ObjectOutput<Shape extends MCRawShape | ModalRawShape> = {
   [k in keyof Shape]: Shape[k]['_output'];

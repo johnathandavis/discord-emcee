@@ -18,3 +18,9 @@ declare class MCSchema<TShape extends MCRawShape> extends Schema<TShape, TShape,
 |  [toStateDefinition](./discord-emcee.sb.mcschema.tostatedefinition.md) |  | () =&gt; MCStateDefinition&lt;[MCRawShape](./discord-emcee.sb.mcrawshape.md)<!-- -->&gt; |  |
 |  [validator](./discord-emcee.sb.mcschema.validator.md) |  | (validator: SchemaValidator&lt;ObjectOutput&lt;TShape&gt;&gt;) =&gt; this |  |
 
+## Methods
+
+|  Method | Modifiers | Description |
+|  --- | --- | --- |
+|  [setCustomStateFactory(schema, customStateFactory)](./discord-emcee.sb.mcschema.setcustomstatefactory.md) | <code>static</code> |  |
+

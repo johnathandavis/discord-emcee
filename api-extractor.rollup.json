@@ -17,5 +17,12 @@
     "betaTrimmedFilePath": "<projectFolder>/dist/<unscopedPackageName>-beta.d.ts",
     "publicTrimmedFilePath": "<projectFolder>/dist/<unscopedPackageName>-public.d.ts",
     "omitTrimmingComments": true
+  },
+  "messages": {
+    "extractorMessageReporting": {
+      "ae-wrong-input-file-type": {
+        "logLevel": "none"
+      }
+    }
   }
 }

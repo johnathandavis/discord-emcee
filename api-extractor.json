@@ -8,7 +8,7 @@
   "apiReport": {
     "enabled": true,
     "reportFileName": "<unscopedPackageName>.api.md",
-    "reportFolder": "<projectFolder>/reports/api/",
+    "reportFolder": "<projectFolder>/reports/",
     "reportTempFolder": "<projectFolder>/temp/",
     "includeForgottenExports": false
   },
@@ -22,20 +22,9 @@
     "enabled": false
   },
   "messages": {
-    "compilerMessageReporting": {
-      "default": {
-        "logLevel": "warning",
-        "addToApiReportFile": false
-      }
-    },
     "extractorMessageReporting": {
-      "default": {
-        "logLevel": "warning"
-      }
-    },
-    "tsdocMessageReporting": {
-      "default": {
-        "logLevel": "warning"
+      "ae-wrong-input-file-type": {
+        "logLevel": "none"
       }
     }
   }

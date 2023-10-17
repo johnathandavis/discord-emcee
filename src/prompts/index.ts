@@ -1,6 +1,7 @@
 import promptInline from './InlineMessagePrompter';
 import promptModal from './ModalPrompter';
-import { InlineMessagePromptOptions } from './Shared';
+import { TimeOutError } from './Shared';
+import type { InlineMessagePromptOptions, ModalPromptOptions } from './Shared';
 
-export { promptInline, promptModal };
-export type { InlineMessagePromptOptions };
+export { promptInline, promptModal, TimeOutError };
+export type { InlineMessagePromptOptions, ModalPromptOptions };

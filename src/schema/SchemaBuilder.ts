@@ -1,3 +1,4 @@
+import { State } from 'state';
 import {
   BooleanStateInput,
   MCStateDefinition,
@@ -138,6 +139,9 @@ abstract class Schema<
   abstract toStateDefinition(): TStateDefinition;
 }
 
+type CustomStateFactory = (
+  sd: MCStateDefinition<MCRawShape>
+) => State<MCRawShape>;
 class MCSchema<TShape extends MCRawShape> extends Schema<
   TShape,
   TShape,
@@ -145,6 +149,7 @@ class MCSchema<TShape extends MCRawShape> extends Schema<
 > {
   private _validator: SchemaValidator<ObjectOutput<TShape>> | undefined =
     undefined;
+  private _customStateFactory: CustomStateFactory | undefined;
 
   toStateDefinition = (): MCStateDefinition<MCRawShape> => {
     const inputs = Object.keys(this._shape).map((k) => {
@@ -161,16 +166,29 @@ class MCSchema<TShape extends MCRawShape> extends Schema<
       : buildDefaultSchemaValidator<MCRawShape, ObjectOutput<MCRawShape>>(
           this._shape
         );
-    return {
+    const sd: MCStateDefinition<MCRawShape> = {
       inputs: inputs,
       validator: validator
     } as MCStateDefinition<MCRawShape>;
+    if (this._customStateFactory) {
+      sd.createState = () => this._customStateFactory!(sd);
+    } else {
+      sd.createState = () => new State<MCRawShape>(sd);
+    }
+    return sd;
   };
 
   validator = (validator: SchemaValidator<ObjectOutput<TShape>>): this => {
     this._validator = validator;
     return this;
   };
+
+  static setCustomStateFactory(
+    schema: MCSchema<any>,
+    customStateFactory: CustomStateFactory
+  ) {
+    schema._customStateFactory = customStateFactory;
+  }
 }
 class ModalSchema<TShape extends ModalRawShape> extends Schema<
   TShape,
@@ -212,10 +230,10 @@ export {
   roleInput,
   stringInput,
   channelInput,
-  mentionableInput
+  mentionableInput,
+  MCSchema
 };
 export type {
-  MCSchema,
   ModalSchema,
   MCRawShape,
   ModalRawShape,

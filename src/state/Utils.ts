@@ -1,6 +1,22 @@
-import type { MCStateInput } from '../Shared';
+import type {
+  BooleanStateInput,
+  ChannelStateInput,
+  MCStateInput,
+  MentionableStateInput,
+  OptionStateInput,
+  RoleStateInput,
+  UserStateInput
+} from '../Shared';
 import type { MCComponentTypeOf } from './Common';
-import { ComponentType } from 'discord.js';
+import {
+  ButtonInteraction,
+  ChannelSelectMenuInteraction,
+  ComponentType,
+  MentionableSelectMenuInteraction,
+  RoleSelectMenuInteraction,
+  StringSelectMenuInteraction,
+  UserSelectMenuInteraction
+} from 'discord.js';
 
 const toComponentType = <T extends MCStateInput>(
   t: MCStateInput['type']
@@ -21,4 +37,33 @@ const toComponentType = <T extends MCStateInput>(
   }
 };
 
+type ToStateInput<T extends ComponentType> = T extends ComponentType.Button
+  ? BooleanStateInput
+  : T extends ComponentType.StringSelect
+  ? OptionStateInput<any>
+  : T extends ComponentType.UserSelect
+  ? UserStateInput
+  : T extends ComponentType.RoleSelect
+  ? RoleStateInput
+  : T extends ComponentType.MentionableSelect
+  ? MentionableStateInput
+  : T extends ComponentType.ChannelSelect
+  ? ChannelStateInput
+  : never;
+
+type ToInteractionType<T extends ComponentType> = T extends ComponentType.Button
+  ? ButtonInteraction
+  : T extends ComponentType.StringSelect
+  ? StringSelectMenuInteraction
+  : T extends ComponentType.UserSelect
+  ? UserSelectMenuInteraction
+  : T extends ComponentType.RoleSelect
+  ? RoleSelectMenuInteraction
+  : T extends ComponentType.MentionableSelect
+  ? MentionableSelectMenuInteraction
+  : T extends ComponentType.ChannelSelect
+  ? ChannelSelectMenuInteraction
+  : never;
+
 export { toComponentType };
+export type { ToStateInput, ToInteractionType };

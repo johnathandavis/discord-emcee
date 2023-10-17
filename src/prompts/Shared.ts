@@ -21,4 +21,14 @@ type ModalPromptOptions = {
   timeoutSeconds?: number;
 };
 
+class TimeOutError extends Error {
+  constructor(msg: string) {
+    super(msg);
+    this.name = TimeOutError.Name;
+  }
+
+  static readonly Name: string = 'TimeOutError';
+}
+
+export { TimeOutError };
 export type { InlineMessagePromptOptions, ModalPromptOptions };

@@ -11,6 +11,8 @@ import {
   ChannelType,
   TextInputStyle
 } from 'discord.js';
+import { MCRawShape } from 'schema';
+import { State } from 'state';
 
 const UserBrand: unique symbol = Symbol();
 type User = string & { [UserBrand]: never };
@@ -97,9 +99,10 @@ type MCStateInput =
   | ChannelStateInput
   | MentionableStateInput;
 type ModalStateInput = StringStateInput;
-type MCStateDefinition<T> = {
+type MCStateDefinition<T extends MCRawShape> = {
   inputs: MCStateInput[];
   validator: (s: T) => boolean;
+  createState: () => State<T>;
 };
 type ModalStateDefinition<T> = {
   inputs: ModalStateInput[];
