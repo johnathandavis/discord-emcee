@@ -7,13 +7,7 @@
 **Signature:**
 
 ```typescript
-declare class MCSchema<T extends MCRawShape, Output = ObjectOutput<T>> extends MCType<T, Output> 
+declare class MCSchema<TShape extends MCRawShape> extends Schema<TShape, TShape> 
 ```
-**Extends:** MCType&lt;T, Output&gt;
-
-## Methods
-
-|  Method | Modifiers | Description |
-|  --- | --- | --- |
-|  [toStateDefinition()](./discord-emcee.sb.mcschema.tostatedefinition.md) |  |  |
+**Extends:** Schema&lt;TShape, TShape&gt;
 

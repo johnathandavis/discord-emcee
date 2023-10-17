@@ -1,90 +1,69 @@
 import './SymPolyfill';
 import {
   InteractionCollector,
-  ButtonInteraction,
-  StringSelectMenuInteraction,
   ComponentType,
   InteractionResponse,
   UserSelectMenuInteraction
 } from 'discord.js';
 import {
-  StateInput,
-  StateValue,
-  StateDefinition,
+  MCStateInput,
+  MCStateDefinition,
   InputUpdateArgs,
   InputUpdatedHandler,
-  ValidationStateChangedArgs,
-  UserStateInput
-} from './Shared';
+  UserStateInput,
+  MCInteractionOfInput
+} from '../Shared';
 import evt from 'events';
+import type {
+  InternalState,
+  InternalStateItem,
+  InternalCollector,
+  StateValueMap,
+  HandlerMap,
+  InteractionDeserializer
+} from './Common';
+import Deserializers from './Deserialization';
+import * as utils from './Utils';
+import { MCRawShape } from 'schema';
+import { ObjectOutput } from 'schema/Core';
 
-type InternalCollector = InteractionCollector<
-  ButtonInteraction | StringSelectMenuInteraction | UserSelectMenuInteraction
->;
-type InternalStateItem = {
-  item: StateInput;
-  value: StateValue;
-  collector?: InternalCollector;
-};
-type InternalState = Record<string, InternalStateItem>;
-type StateValueMap = Record<string, StateValue>;
-
-const createInternalItem = (si: StateInput): InternalStateItem => {
+const createInternalItem = (si: MCStateInput): InternalStateItem => {
   return {
     item: si,
     value: defaultValue(si)
   };
 };
 
-const defaultValue = (si: StateInput): StateValue => {
+const defaultValue = (si: MCStateInput): MCStateInput['value'] => {
   if (si.value) return si.value;
   if (si.type === 'Boolean') {
     return false;
-  } else if (si.type === 'User') {
-    return undefined;
-  } else if (si.type === 'Option') {
+  } else {
     return undefined;
   }
 };
 
-type ComponentTypeOf<T extends StateInput> = T['type'] extends 'Boolean'
-  ? ComponentType.Button
-  : T['type'] extends 'Options'
-  ? ComponentType.StringSelect
-  : T['type'] extends 'User'
-  ? ComponentType.UserSelect
-  : T['type'] extends 'Channel'
-  ? ComponentType.ChannelSelect
-  : T['type'] extends 'Role'
-  ? ComponentType.RoleSelect
-  : T['type'] extends 'Mentionable'
-  ? ComponentType.MentionableSelect
-  : never;
-
-function toComponentType<T extends StateInput>(
-  t: StateInput['type']
-): ComponentTypeOf<T> {
-  switch (t) {
-    case 'Boolean':
-      return ComponentType.Button as unknown as ComponentTypeOf<T>;
-    case 'Option':
-      return ComponentType.StringSelect as unknown as ComponentTypeOf<T>;
-    case 'User':
-      return ComponentType.UserSelect as unknown as ComponentTypeOf<T>;
-  }
-}
-
-function createAttachment<T extends StateInput>(
+function createAttachment<T extends MCStateInput>(
   k: T,
   r: InteractionResponse,
   handler: InputUpdatedHandler<T>
 ): InternalCollector {
   const c = r.createMessageComponentCollector<ComponentType.Button>({
-    componentType: toComponentType(k.type),
+    componentType: utils.toComponentType(k.type),
     filter: (b) => b.customId === k.id
   }) as unknown as InternalCollector;
   c.on('collect', async (i) => {
-    let args: InputUpdateArgs<T> | undefined = undefined;
+    const deserializer: InteractionDeserializer<T> = Deserializers[
+      k.type
+    ] as unknown as InteractionDeserializer<T>;
+    const interaction = i as MCInteractionOfInput<T>;
+
+    let args: InputUpdateArgs<T> | undefined = {
+      item: k,
+      oldValue: k.value,
+      newValue: deserializer(k as T, k.value, interaction),
+      interaction: interaction
+    };
     if (i.componentType === ComponentType.Button) {
       const currentValue = k.value ?? false;
       const newValue = !currentValue;
@@ -104,6 +83,8 @@ function createAttachment<T extends StateInput>(
         interaction: i
       } as InputUpdateArgs<T>;
     } else if (i.componentType === ComponentType.UserSelect) {
+      const users = (i as UserSelectMenuInteraction).users!;
+      console.log(users);
       const usi = k as UserStateInput;
       const currentValue = usi.value ?? undefined;
       const selection = i.values ?? undefined;
@@ -121,40 +102,30 @@ function createAttachment<T extends StateInput>(
   return c;
 }
 
-interface EventArgsMap<T extends StateInput> {
-  stateUpdate: InputUpdateArgs<T>;
-  validationStateChanged: ValidationStateChangedArgs;
-}
-type HandlerMap<T extends StateInput> = {
-  [Property in keyof EventArgsMap<T>]: (
-    args: EventArgsMap<T>[Property]
-  ) => void;
-};
-
-class State {
-  private readonly _definition: StateDefinition;
+class State<TShape extends MCRawShape> {
+  private readonly _definition: MCStateDefinition<TShape>;
   private _state: InternalState;
   private _response: InteractionResponse | null = null;
   private _lastValidationResult: boolean = false;
   private readonly _emitter: evt.EventEmitter;
   private readonly _validator: (m: any) => boolean;
 
-  constructor(def: StateDefinition, validator: (m: any) => boolean) {
+  constructor(def: MCStateDefinition<TShape>) {
     this._definition = def;
     this._state = {};
     this._emitter = new evt.EventEmitter();
     this._definition.inputs.forEach((si) => {
       this._state[si.id] = createInternalItem(si);
     });
-    this._validator = validator;
+    this._validator = def.validator;
   }
 
-  get valueMap(): StateValueMap {
-    const vm: StateValueMap = {};
+  get valueMap(): StateValueMap<TShape> {
+    const vm: Partial<StateValueMap<TShape>> = {};
     this._definition.inputs.forEach((si) => {
-      vm[si.id] = this._state[si.id].value;
+      (vm as any)[si.id] = this._state[si.id].value;
     });
-    return vm;
+    return vm as unknown as StateValueMap<TShape>;
   }
 
   monitorStateUpdates = (r: InteractionResponse) => {

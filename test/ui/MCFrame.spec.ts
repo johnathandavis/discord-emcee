@@ -1,9 +1,9 @@
-import { createUI as _createUI, createUI, createUIInput } from '../../src/ui/Frame';
-import type { InputFactory, Component, Row } from '../../src/ui/Frame';
-import { BooleanStateInput, EmceeUserInterface, OptionStateInput } from '../../src/Shared';
+import { createComponentUI } from '../../src/ui/MCFrame';
+import type { InputFactory, Row } from '../../src/ui/MCFrame';
 import { ButtonStyle, ComponentType, ButtonBuilder, StringSelectMenuBuilder } from 'discord.js';
 import { cMatches } from './Utils';
-import * as sb from '../../src/StateBuilder';
+import { InlineMessagePromptOptions } from '../../src/prompts';
+import * as sb from '../../src/schema';
 
 const Model = ['ChatGPT4', 'ChatGPT3'] as const;
 type ModelType = typeof Model[number];
@@ -14,7 +14,7 @@ const o = sb.optionInput<ModelType>({
     ],
     placeholder: 'Select Me Please'
 })
-const s = sb.createSchema({
+const s = sb.createMCSchema({
     hello: sb.boolInput({}),
     model: o
 });
@@ -36,14 +36,14 @@ describe('createUI', () => {
 
     test('calls correct factories', () => {
         
-        let uiDef: EmceeUserInterface = {
+        let uiDef: InlineMessagePromptOptions = {
             title: 'Enter'
         };
         let currentState: Partial<SType> = {
             hello: undefined,
             model: 'ChatGPT3'
         };
-        const ui = createUI(uiDef, s, currentState as SType, validator, inputFactory);
+        const ui = createComponentUI(uiDef, s, currentState as SType, validator, inputFactory);
         expect(ui.content).toBe('Enter');
         let rows: Row[] = ui.components! as Row[];
         const btn = (rows[0].components[0] as ButtonBuilder).toJSON();
@@ -66,13 +66,5 @@ describe('createUI', () => {
             style: ButtonStyle.Primary,
             type: ComponentType.Button
         }, sub);
-    });
-
-    test('createUIInput creates correct elements', () => {
-        const sd = s.toStateDefinition();
-        const btnInput = sd.inputs[0] as BooleanStateInput;
-        const opInput = sd.inputs[1] as OptionStateInput<any>;
-        expect(createUIInput(btnInput, undefined).toJSON().type).toBe(ComponentType.Button);
-        expect(createUIInput(opInput, true).toJSON().type).toBe(ComponentType.StringSelect);
     });
 });

@@ -15,8 +15,10 @@ const MinimalOptionState: OptionStateInput<Modes> = {
 const OptionStateWithOptionals: OptionStateInput<Modes> = {
     ...MinimalOptionState,
     placeholder: 'Select Me Please',
-    value: '1',
-    disabled: true
+    value: ['1'],
+    disabled: true,
+    minValues: 4,
+    maxValues: 7
 }
 
 const getSelected = (c: APIStringSelectComponent): string | null => {
@@ -30,7 +32,7 @@ const getSelected = (c: APIStringSelectComponent): string | null => {
 describe('createOption', () => {
 
     test('creates correct selectmenu with defaults', () => {
-        const optionWithDefaults = createOption(MinimalOptionState, op1).toJSON();
+        const optionWithDefaults = createOption(MinimalOptionState, [op1.result]).toJSON();
         cMatches({
             custom_id: 'mode',
             type: ComponentType.StringSelect
@@ -40,31 +42,15 @@ describe('createOption', () => {
 
 
     test('creates correct selectmenu with optionals', () => {
-        const optionWithDefaults = createOption(OptionStateWithOptionals, op2).toJSON();
+        const optionWithDefaults = createOption(OptionStateWithOptionals, [op2.result]).toJSON();
         cMatches({
             placeholder: 'Select Me Please',
-            disabled: true
+            disabled: true,
+            min_values: 4,
+            max_values: 7
         }, optionWithDefaults);
         expect(optionWithDefaults.options.length).toBe(2);
         expect(getSelected(optionWithDefaults)).toBe(op2.result);
-    });
-
-    test('disables when instructed', () => {
-        let op1: IOption<string> = {result: '1'};
-        let op2: IOption<string> = {result: '2'};
-        const disabledConfig: OptionStateInput<string> = {
-            id: 'eagerMode',
-            type: 'Option',
-            options: [ op1, op2 ],
-            disabled: true
-        }
-
-        const optionWithDefaults = createOption(disabledConfig, op1).toJSON();
-        cMatches({
-            disabled: true
-        }, optionWithDefaults);
-        expect(optionWithDefaults.options.length).toBe(2);
-
     });
 
     test('uses schema original value if no current value', () => {
@@ -73,7 +59,7 @@ describe('createOption', () => {
         const noValueConfig: OptionStateInput<string> = {
             id: 'eagerMode',
             type: 'Option',
-            value: '2',
+            value: ['2'],
             options: [ op1, op2 ],
             placeholder: 'Select Me Please'
         }

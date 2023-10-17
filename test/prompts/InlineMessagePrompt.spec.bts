@@ -1,0 +1,32 @@
+import { ChatInputCommandInteraction } from 'discord.js';
+import { IOption, sb, promptInline } from '../../src';
+
+const Models = ['ChatGPT-Turbo-3.5', 'ChatGPT 4'] as const;
+type ModelType = typeof Models[number];
+const ModelOptions: IOption<ModelType>[] = [
+    {
+        label: 'ChatGPT-Turbo-3.5',
+        value: 'ChatGPT-Turbo-3.5',
+        result: 'ChatGPT-Turbo-3.5'
+    },
+    {
+        label: 'ChatGPT 4',
+        value: 'ChatGPT 4',
+        result: 'ChatGPT 4',
+    }
+]
+
+const s = sb.createSchema({
+    model: sb.optionInput<ModelType>({
+        options: ModelOptions,
+    })
+});
+type SchemaType = sb.Infer<typeof s>;
+let interaction: ChatInputCommandInteraction = '' as unknown as ChatInputCommandInteraction;
+promptInline(
+    s,
+    {
+        title: 'Configure Conversation'
+    },
+    interaction
+);

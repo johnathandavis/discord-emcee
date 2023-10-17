@@ -17,12 +17,14 @@ const DescribedOption: IOption<string> = {
     description: 'The number four'
 };
 
+const selected = <T>(...r: T[]): Set<T> => new Set<T>(r);
+
 describe('createOptionValue', () => {
 
     test('creates correct option value with minimal config', () => {
 
         let selectedOption = ValuedOption;
-        const minimalValue = createOptionValue(MinimalOptions, selectedOption.result).toJSON();
+        const minimalValue = createOptionValue(MinimalOptions, selected(selectedOption.result)).toJSON();
         cMatches({
             label: '1',
             value: '1'
@@ -33,7 +35,7 @@ describe('createOptionValue', () => {
     test('sets default when option value equals the selected value', () => {
 
         let selectedOption = MinimalOptions;
-        const selectedValue = createOptionValue(MinimalOptions, selectedOption.result).toJSON();
+        const selectedValue = createOptionValue(MinimalOptions, selected(selectedOption.result)).toJSON();
         cMatches({
             label: '1',
             value: '1',
@@ -45,7 +47,7 @@ describe('createOptionValue', () => {
     test('uses label if provided', () => {
 
         let selectedOption = ValuedOption;
-        const labeledValue = createOptionValue(LabeledOption, selectedOption.result).toJSON();
+        const labeledValue = createOptionValue(LabeledOption, selected(selectedOption.result)).toJSON();
         cMatches({
             label: 'Two',
             value: '2'
@@ -56,7 +58,7 @@ describe('createOptionValue', () => {
     test('uses value if provided', () => {
 
         let selectedOption = DescribedOption;
-        const valuedValue = createOptionValue(ValuedOption, selectedOption.result).toJSON();
+        const valuedValue = createOptionValue(ValuedOption, selected(selectedOption.result)).toJSON();
         cMatches({
             label: '3',
             value: 'tres'
@@ -66,7 +68,7 @@ describe('createOptionValue', () => {
 
     test('uses description if provided', () => {
         let selectedOption = ValuedOption;
-        const describedValue = createOptionValue(DescribedOption, selectedOption.result).toJSON();
+        const describedValue = createOptionValue(DescribedOption, selected(selectedOption.result)).toJSON();
         cMatches({
             description: 'The number four'
         }, describedValue);
@@ -74,7 +76,7 @@ describe('createOptionValue', () => {
 
     test('converts result to string', () => {
         const NumericalOption: IOption<number> = {result: 1};
-        const numericalValue = createOptionValue(NumericalOption, NumericalOption.result).toJSON();
+        const numericalValue = createOptionValue(NumericalOption, selected(NumericalOption.result)).toJSON();
         cMatches({
             label: '1',
             value: '1'

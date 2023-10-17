@@ -1,6 +1,8 @@
-import { ButtonStyle } from 'discord.js';
-import { BooleanStateInput, OptionStateInput, User, UserStateInput } from '../src/Shared';
-import * as sb from '../src/StateBuilder';
+import { ButtonStyle, ChatInputCommandInteraction, InteractionResponse } from 'discord.js';
+import { BooleanStateInput, IOption, OptionStateInput, User, UserStateInput } from '../../src/Shared';
+import * as sb from '../../src/schema/SchemaBuilder';
+import promptInline from '../../src/prompts/InlineMessagePrompter';
+import { ObjectOutput } from '../../src/schema/Core';
 
 type Expect<T extends true> = T
 type Equal<X, Y> =
@@ -19,14 +21,23 @@ const o = sb.optionInput<ModelType>({
     ]
 });
 
-const u = sb.userInput({});
-type UType = sb.Infer<typeof u>;
-
-const s = sb.createSchema({
+const s = sb.createMCSchema({
     hello: b,
     model: o
 });
 type SType = sb.Infer<typeof s>;
+
+const u = sb.userInput({});
+type UType = sb.Infer<typeof u>;
+
+
+const ModalSchemasCannotUserStrings = sb.createMCSchema({
+  // @ts-expect-error
+  hi: sb.stringInput({ value: 'asdf' })
+});
+const ModalSchemasCanUseRegularWebComponents = sb.createMCSchema({
+    hi: sb.boolInput({})
+});
 
 type cases = [
     Expect<Equal<BType, boolean>>,
@@ -34,9 +45,11 @@ type cases = [
     Expect<Equal<SType, { hello: boolean, model: ModelType }>>
 ]
 
+
+
 describe('StateBuilder', () => {
     test('creates valid schema definition', () => {
-        const schemaWithBool = sb.createSchema({
+        const schemaWithBool = sb.createMCSchema({
             hello: sb.boolInput({
                 value: true,
                 trueStyle: { text: 'On', style: ButtonStyle.Primary },
@@ -44,7 +57,7 @@ describe('StateBuilder', () => {
             }),
             model: sb.optionInput<ModelType>({
                 placeholder: 'Select Model',
-                value: 'ChatGPT4',
+                value: ['ChatGPT4'],
                 options: [
                     { label: 'ChatGPT4', value: 'ChatGPT4', result: 'ChatGPT4' },
                     { label: 'ChatGPT3', value: 'ChatGPT3', result: 'ChatGPT3' }
@@ -57,7 +70,7 @@ describe('StateBuilder', () => {
                 minValues: 2,
                 maxValues: 7
             })
-        })
+        });
         const sd = schemaWithBool.toStateDefinition();
         expect(sd.inputs.length).toBe(3);
         const ib = sd.inputs.filter(i => i.type === 'Boolean')[0] as BooleanStateInput;
@@ -69,7 +82,7 @@ describe('StateBuilder', () => {
         const io = sd.inputs.filter(i => i.type === 'Option')[0] as OptionStateInput<ModelType>;
         expect(io.id).toBe('model');
         expect(io.type).toBe('Option');
-        expect(io.value).toBe('ChatGPT4');
+        expect(io.value).toStrictEqual(['ChatGPT4']);
         expect(io.placeholder).toBe('Select Model');
         expect(io.options[0]).toStrictEqual({ label: 'ChatGPT4', value: 'ChatGPT4', result: 'ChatGPT4' });
         expect(io.options[1]).toStrictEqual({ label: 'ChatGPT3', value: 'ChatGPT3', result: 'ChatGPT3' });

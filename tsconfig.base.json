@@ -1,28 +1,21 @@
 {
     "compilerOptions": {
-        "allowJs": true,
         "allowSyntheticDefaultImports": true,
         "baseUrl": "src",
         "declaration": true,
         "declarationDir": "dist/types",
         "declarationMap": true,
         "esModuleInterop": true,
-        "inlineSourceMap": false,
+        "inlineSourceMap": true,
+        "isolatedModules": true,
         "lib": ["esnext"],
-        "listEmittedFiles": false,
-        "listFiles": false,
         "moduleResolution": "node",
-        "noFallthroughCasesInSwitch": true,
         "pretty": true,
-        "resolveJsonModule": true,
         "rootDir": "src",
-        "skipLibCheck": true,
         "strict": true,
         "target": "es2022",
-        "traceResolution": false,
         "types": ["node", "jest"]
     },
-    
     "compileOnSave": false,
     "exclude": ["node_modules", "dist"],
     "include": ["src"]

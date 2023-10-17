@@ -4,11 +4,30 @@ import {
   StringSelectMenuInteraction,
   InteractionUpdateOptions,
   InteractionResponse,
-  UserSelectMenuInteraction
+  UserSelectMenuInteraction,
+  RoleSelectMenuInteraction,
+  ChannelSelectMenuInteraction,
+  MentionableSelectMenuInteraction,
+  ChannelType
 } from 'discord.js';
 
 const UserBrand: unique symbol = Symbol();
 type User = string & { [UserBrand]: never };
+
+const ChannelBrand: unique symbol = Symbol();
+type Channel = string & { [ChannelBrand]: never };
+
+const MentionableBrand: unique symbol = Symbol();
+type Mentionable = string & { [MentionableBrand]: never };
+
+const RoleBrand: unique symbol = Symbol();
+type Role = string & { [RoleBrand]: never };
+
+type StringStateInput = {
+  id: string;
+  type: 'String';
+  value: string;
+};
 
 type IOption<T> = {
   result: T;
@@ -21,19 +40,34 @@ type OptionStateInput<T = any> = {
   type: 'Option';
   options: IOption<T>[];
   placeholder?: string;
-  value?: T | null;
+  value?: T[];
   disabled?: boolean;
+  minValues?: number;
+  maxValues?: number;
 };
 
-type UserStateInput = {
+type DiscordCoreSelectInput<TVal> = {
   id: string;
-  type: 'User';
-  value?: User[];
+  value?: TVal[];
   disabled?: boolean;
   minValues?: number;
   maxValues?: number;
   placeholder?: string;
 };
+type UserStateInput = DiscordCoreSelectInput<User> & {
+  type: 'User';
+};
+type RoleStateInput = DiscordCoreSelectInput<Role> & {
+  type: 'Role';
+};
+type MentionableStateInput = DiscordCoreSelectInput<Mentionable> & {
+  type: 'Mentionable';
+};
+type ChannelStateInput = DiscordCoreSelectInput<Channel> & {
+  type: 'Channel';
+  channelTypes?: ChannelType[];
+};
+
 type BooleanStateInput = {
   id: string;
   type: 'Boolean';
@@ -47,56 +81,71 @@ type BooleanStateInput = {
     text?: string;
   };
 };
-type StateInput = OptionStateInput | BooleanStateInput | UserStateInput;
-type StateValue = StateInput['value'];
-type StateDefinition = {
-  inputs: StateInput[];
+type MCStateInput =
+  | OptionStateInput
+  | BooleanStateInput
+  | UserStateInput
+  | RoleStateInput
+  | ChannelStateInput
+  | MentionableStateInput;
+type ModalStateInput = MCStateInput | StringStateInput;
+type MCStateDefinition<T> = {
+  inputs: MCStateInput[];
+  validator: (s: T) => boolean;
 };
-type StateValueMap = Record<string, StateValue>;
+type MCStateValueMap = Record<string, MCStateInput['value']>;
 
-type InteractionOfValue<T extends StateValue> = T extends IOption<any>
+type MCInteractionOfValue<T extends MCStateInput['value']> = T extends boolean
+  ? ButtonInteraction
+  : T extends IOption<any>[]
   ? StringSelectMenuInteraction
-  : T extends User
+  : T extends User[]
   ? UserSelectMenuInteraction
-  : ButtonInteraction;
-
-type InteractionOfInput<T extends StateInput> = InteractionOfValue<T>;
+  : T extends Role[]
+  ? RoleSelectMenuInteraction
+  : T extends Channel[]
+  ? ChannelSelectMenuInteraction
+  : T extends Mentionable[]
+  ? MentionableSelectMenuInteraction
+  : never;
+type MCInteractionOfInput<T extends MCStateInput> = MCInteractionOfValue<
+  T['value']
+>;
 
 type UpdateParam = InteractionUpdateOptions;
 type Updater = (p: UpdateParam) => Promise<InteractionResponse>;
-type InputUpdatedHandler<T extends StateInput> = (
+type InputUpdatedHandler<T extends MCStateInput> = (
   args: InputUpdateArgs<T>
 ) => Promise<void>;
-type InputUpdateArgs<T extends StateInput> = {
-  item: StateInput;
-  oldValue: StateValue;
-  newValue: StateValue;
-  interaction: InteractionOfValue<T>;
+type InputUpdateArgs<T extends MCStateInput> = {
+  item: MCStateInput;
+  oldValue: T['value'];
+  newValue: T['value'];
+  interaction: MCInteractionOfInput<T>;
 };
 type ValidationStateChangedArgs = {
   isValid: boolean;
 };
 
-interface EmceeUserInterface {
-  title: string;
-  submit?: {
-    buttonText?: string;
-    buttonStyle?: ButtonStyle;
-  };
-}
-
 export type {
-  EmceeUserInterface,
-  StateDefinition,
-  StateInput,
-  StateValue,
-  StateValueMap,
-  InteractionOfValue,
-  InteractionOfInput,
+  MCStateDefinition,
+  MCStateInput,
+  ModalStateInput,
+  MCStateValueMap,
+  MCInteractionOfValue,
+  MCInteractionOfInput,
+  StringStateInput,
   BooleanStateInput,
   OptionStateInput,
-  UserStateInput,
+  DiscordCoreSelectInput,
   User,
+  UserStateInput,
+  Role,
+  RoleStateInput,
+  Channel,
+  ChannelStateInput,
+  Mentionable,
+  MentionableStateInput,
   IOption,
   UpdateParam,
   Updater,

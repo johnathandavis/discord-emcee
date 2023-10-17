@@ -18,5 +18,5 @@ declare function optionInput<TOption>(options: OptionCreateOptions<TOption>): MC
 
 **Returns:**
 
-MCOption&lt;TOption&gt;
+[MCOption](./discord-emcee.sb.mcoption.md)<!-- -->&lt;TOption&gt;
 

@@ -4,24 +4,32 @@ import {
 } from 'discord.js';
 import { OptionStateInput, IOption } from '../Shared';
 
-const createOption = (
-  input: OptionStateInput,
-  currentValue?: IOption<any>
+const createOption = <T>(
+  input: OptionStateInput<T>,
+  currentValue?: T[]
 ): StringSelectMenuBuilder => {
-  const selectedValue = currentValue?.result ?? input.value;
+  const selectedValues: Set<T> = new Set<T>(currentValue ?? input.value ?? []);
   const eb = new StringSelectMenuBuilder().setCustomId(input.id);
   if (input.placeholder) {
     eb.setPlaceholder(input.placeholder!);
   }
-  let options = input.options.map((v) => createOptionValue(v, selectedValue));
+  let options = input.options.map((v) =>
+    createOptionValue<T>(v, selectedValues)
+  );
   eb.addOptions(options);
   eb.setDisabled(input.disabled ?? false);
+  if (input.minValues) {
+    eb.setMinValues(input.minValues);
+  }
+  if (input.maxValues) {
+    eb.setMaxValues(input.maxValues);
+  }
   return eb;
 };
 
 function createOptionValue<T>(
   v: IOption<T>,
-  selectedValue: T
+  selectedValuesSet: Set<T>
 ): StringSelectMenuOptionBuilder {
   let b = new StringSelectMenuOptionBuilder();
   const strResult = `${v.result}`;
@@ -30,7 +38,7 @@ function createOptionValue<T>(
   if (v.description) {
     b.setDescription(v.description);
   }
-  if (v.result === selectedValue) {
+  if (selectedValuesSet.has(v.result)) {
     b.setDefault(true);
   }
   return b;

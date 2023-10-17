@@ -1,9 +1,9 @@
 import { createSubmit as _createSubmit } from '../../src/ui/Submit';
-import { EmceeUserInterface } from '../../src/Shared';
+import { InlineMessagePromptOptions } from '../../src/prompts';
 import { ButtonStyle, ComponentType, APIButtonComponent } from 'discord.js';
 import { cMatches } from './Utils';
 
-type SubmitConfig = Exclude<EmceeUserInterface['submit'], undefined>
+type SubmitConfig = Exclude<InlineMessagePromptOptions['submit'], undefined>
 const createSubmit = (config: SubmitConfig | undefined, enabled: boolean): APIButtonComponent => {
     const btn = _createSubmit(config, enabled);
     return btn.toJSON() as APIButtonComponent;

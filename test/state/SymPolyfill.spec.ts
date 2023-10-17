@@ -1,4 +1,4 @@
-import ContextHelper from "./ContextHelper";
+import ContextHelper from "../ContextHelper";
 import path from 'path';
 
 const pkgRoot = path.resolve(__dirname, '../');
@@ -22,7 +22,7 @@ describe('SymPolyfill', () => {
     test('Creates dispose when not available', async () => {
         clear();
         const dBefore = (Symbol as any)['dispose'];
-        require('../src/SymPolyfill');
+        require('../../src/state/SymPolyfill');
         const dAfter = (Symbol as any)['dispose'];
         expect(dBefore).toBeUndefined();
         expect(dAfter).toBeDefined();
@@ -31,7 +31,7 @@ describe('SymPolyfill', () => {
     test('Creates dispose when not available', async () => {
         init();
         const dBefore = (Symbol as any)['dispose'];
-        require('../src/SymPolyfill');
+        require('../../src/state/SymPolyfill');
         const dAfter = (Symbol as any)['dispose'];
         expect(dBefore).toBe(dAfter);
     });

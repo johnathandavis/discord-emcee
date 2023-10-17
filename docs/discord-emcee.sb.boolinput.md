@@ -18,5 +18,5 @@ declare function boolInput(options: BooleanCreateOptions): MCBoolean;
 
 **Returns:**
 
-MCBoolean
+[MCBoolean](./discord-emcee.sb.mcboolean.md)
 

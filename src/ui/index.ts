@@ -1,3 +1,4 @@
-import { createUI } from './Frame';
+import { createComponentUI } from './MCFrame';
+import { createModalUI } from './ModalFrame';
 
-export { createUI };
+export { createComponentUI, createModalUI };

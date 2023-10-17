@@ -7,7 +7,5 @@
 **Signature:**
 
 ```typescript
-type MCRawShape = {
-    [k: string]: MCInputAny;
-};
+type MCRawShape = RawShape<MCInputType<any>>;
 ```

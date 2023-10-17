@@ -8,15 +8,23 @@
 
 |  Class | Description |
 |  --- | --- |
+|  [MCBoolean](./discord-emcee.sb.mcboolean.md) |  |
+|  [MCOption](./discord-emcee.sb.mcoption.md) |  |
 |  [MCSchema](./discord-emcee.sb.mcschema.md) |  |
+|  [ModalSchema](./discord-emcee.sb.modalschema.md) |  |
 
 ## Functions
 
 |  Function | Description |
 |  --- | --- |
 |  [boolInput(options)](./discord-emcee.sb.boolinput.md) |  |
-|  [createSchema(d)](./discord-emcee.sb.createschema.md) |  |
+|  [channelInput(options)](./discord-emcee.sb.channelinput.md) |  |
+|  [createMCSchema(d)](./discord-emcee.sb.createmcschema.md) |  |
+|  [createModalSchema(d)](./discord-emcee.sb.createmodalschema.md) |  |
+|  [mentionableInput(options)](./discord-emcee.sb.mentionableinput.md) |  |
 |  [optionInput(options)](./discord-emcee.sb.optioninput.md) |  |
+|  [roleInput(options)](./discord-emcee.sb.roleinput.md) |  |
+|  [stringInput(options)](./discord-emcee.sb.stringinput.md) |  |
 |  [userInput(options)](./discord-emcee.sb.userinput.md) |  |
 
 ## Type Aliases

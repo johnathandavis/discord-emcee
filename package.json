@@ -15,7 +15,7 @@
     "build": "npm run build:cjs && npm run build:esm && npm run build:rollup",
     "build:cjs": "tsc -p tsconfig.cjs.json && jq '.type = \"commonjs\"' package.json > ./dist/cjs/package.json",
     "build:esm": "tsc -p tsconfig.esm.json",
-    "build:rollup": "npx api-extractor run --local --verbose --config api-extractor.rollup.json",
+    "build:rollup": "npx api-extractor run --local --verbose --diagnostics --config api-extractor.rollup.json",
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest && npm run test:badge",
     "test:badge": "npx jest-coverage-badges input \"./reports/coverage/coverage-summary.json\" output \"./images/badges\"",
     "docs": "npm run docs:report && npm run docs:generate",
@@ -64,5 +64,6 @@
   "dependencies": {
     "discord.js": "^14.13.0",
     "events": "^3.3.0"
-  }
+  },
+  "packageManager": "yarn@3.6.4"
 }

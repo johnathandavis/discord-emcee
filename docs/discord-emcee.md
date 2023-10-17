@@ -8,13 +8,7 @@
 
 |  Function | Description |
 |  --- | --- |
-|  [prompt\_2(schema, uiOptions, validator, interaction)](./discord-emcee.prompt_2.md) | Prompt a Discord user information via a MessageComponent. |
-
-## Interfaces
-
-|  Interface | Description |
-|  --- | --- |
-|  [EmceeUserInterface](./discord-emcee.emceeuserinterface.md) |  |
+|  [promptInline(schema, uiOptions, interaction)](./discord-emcee.promptinline.md) | Prompt a Discord user information via a MessageComponent. |
 
 ## Namespaces
 
@@ -27,6 +21,4 @@
 |  Type Alias | Description |
 |  --- | --- |
 |  [IOption](./discord-emcee.ioption.md) |  |
-|  [StateDefinition](./discord-emcee.statedefinition.md) |  |
-|  [StateValueMap](./discord-emcee.statevaluemap.md) |  |
 

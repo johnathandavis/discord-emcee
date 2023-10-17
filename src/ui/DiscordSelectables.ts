@@ -14,9 +14,22 @@ import {
   RoleSelectMenuComponent,
   ChannelSelectMenuComponent,
   MentionableSelectMenuComponent,
-  ComponentType
+  ComponentType,
+  ChannelType
 } from 'discord.js';
-import { OptionStateInput, IOption, User, UserStateInput } from '../Shared';
+import {
+  OptionStateInput,
+  IOption,
+  User,
+  UserStateInput,
+  BooleanStateInput,
+  ChannelStateInput,
+  Channel,
+  RoleStateInput,
+  MentionableStateInput,
+  Role,
+  Mentionable
+} from '../Shared';
 
 type SelectableType = 'user' | 'role' | 'channel' | 'mentionable';
 type DefaultVal<T extends SelectableType> = { id: string; type: T };
@@ -47,6 +60,15 @@ type DefaultValueTypeFor<T extends ApiComponents> =
 type DefaultValueFor<T extends ApiComponents> = DefaultVal<
   DefaultValueTypeFor<T>
 >;
+type StateInputFor<T extends SelectableType> = T extends 'user'
+  ? UserStateInput
+  : T extends 'channel'
+  ? ChannelStateInput
+  : T extends 'role'
+  ? RoleStateInput
+  : T extends 'mentionable'
+  ? MentionableStateInput
+  : never;
 
 const toDf = <T extends SelectableType>(id: string, t: T): DefaultVal<T> => {
   return {
@@ -70,18 +92,14 @@ const toComponentType = (t: SelectableType): ComponentType => {
 type WithDefaultValues<T extends SelectableType> = ComponentFor<T> & {
   default_values?: DefaultVal<T>[];
 };
-type Builders =
-  | UserSelectMenuBuilder
-  | ChannelSelectMenuBuilder
-  | RoleSelectMenuBuilder
-  | MentionableSelectMenuBuilder;
+
 class ExtendedBuilder<
   TType extends SelectableType
 > extends BaseSelectMenuBuilder<ComponentFor<TType>> {
   private readonly idType: DefaultVal<TType>['type'];
   private _defaultValues: DefaultVal<TType>[] | undefined = undefined;
 
-  private constructor(idType: DefaultVal<TType>['type']) {
+  constructor(idType: DefaultVal<TType>['type']) {
     super({
       type: toComponentType(idType) as ComponentFor<TType>['type']
     } as Partial<ComponentFor<TType>>);
@@ -112,8 +130,8 @@ class ExtendedBuilder<
   static forUser(): ExtendedBuilder<'user'> {
     return new ExtendedBuilder<'user'>('user');
   }
-  static forChannel(): ExtendedBuilder<'channel'> {
-    return new ExtendedBuilder<'channel'>('channel');
+  static forChannel(): ExtendedChannelBuilder {
+    return new ExtendedChannelBuilder();
   }
   static forMentionable(): ExtendedBuilder<'mentionable'> {
     return new ExtendedBuilder<'mentionable'>('mentionable');
@@ -121,6 +139,33 @@ class ExtendedBuilder<
   static forRole(): ExtendedBuilder<'role'> {
     return new ExtendedBuilder<'role'>('role');
   }
+}
+
+class ExtendedChannelBuilder extends ExtendedBuilder<'channel'> {
+  private _channelTypes: ChannelType[] | undefined = undefined;
+
+  constructor() {
+    super('channel');
+  }
+
+  setChannelTypes = (ct: ChannelType[]): ExtendedChannelBuilder => {
+    this._channelTypes = ct;
+    return this;
+  };
+  addChannelTypes = (ct: ChannelType[]): ExtendedChannelBuilder => {
+    const current = this._channelTypes ?? [];
+    current.push(...ct);
+    this._channelTypes = current;
+    return this;
+  };
+
+  toJSON = (): APIChannelSelectComponent => {
+    let sj: APIChannelSelectComponent = super.toJSON();
+    if (this._channelTypes) {
+      sj.channel_types = this._channelTypes;
+    }
+    return sj;
+  };
 }
 
 const createUserSelect = (
@@ -131,15 +176,46 @@ const createUserSelect = (
   return createDiscordSelect(input, eb, currentValues);
 };
 
+const createChannelSelect = (
+  input: ChannelStateInput,
+  currentValues?: Channel[]
+): ExtendedChannelBuilder => {
+  const cb = ExtendedBuilder.forChannel();
+  createDiscordSelect(input, cb, currentValues);
+
+  if (input.channelTypes) {
+    cb.addChannelTypes(input.channelTypes);
+  }
+  return cb;
+};
+
+const createRoleSelect = (
+  input: RoleStateInput,
+  currentValues?: Role[]
+): ExtendedBuilder<'role'> => {
+  const eb = ExtendedBuilder.forRole();
+  return createDiscordSelect(input, eb, currentValues);
+};
+
+const createMentionableSelect = (
+  input: MentionableStateInput,
+  currentValues?: Mentionable[]
+): ExtendedBuilder<'mentionable'> => {
+  const eb = ExtendedBuilder.forMentionable();
+  return createDiscordSelect(input, eb, currentValues);
+};
+
 const createDiscordSelect = <T extends SelectableType>(
-  input: UserStateInput,
+  input: StateInputFor<T>,
   eb: ExtendedBuilder<T>,
-  currentValues?: User[]
+  currentValues?: StateInputFor<T>['value']
 ): ExtendedBuilder<T> => {
   const dv = currentValues ?? input.value;
   const defaultValues: User[] = dv && Array.isArray(dv) ? (dv as User[]) : [];
   eb.setCustomId(input.id);
-  eb.setDisabled(input.disabled);
+  if (input.disabled) {
+    eb.setDisabled(input.disabled);
+  }
   if (defaultValues.length > 0) {
     eb.setDefaultValues(defaultValues);
   }
@@ -155,4 +231,11 @@ const createDiscordSelect = <T extends SelectableType>(
   return eb;
 };
 
-export { createUserSelect, ExtendedBuilder };
+export {
+  createUserSelect,
+  createChannelSelect,
+  createRoleSelect,
+  createMentionableSelect,
+  ExtendedBuilder,
+  ExtendedChannelBuilder
+};

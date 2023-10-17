@@ -4,9 +4,9 @@ import {
   ButtonBuilder,
   ButtonStyle
 } from 'discord.js';
-import { EmceeUserInterface } from '../Shared';
+import { InlineMessagePromptOptions } from '../../src/prompts/Shared';
 
-type SubmitConfig = Exclude<EmceeUserInterface['submit'], undefined>;
+type SubmitConfig = Exclude<InlineMessagePromptOptions['submit'], undefined>;
 
 const createSubmit = (
   config: SubmitConfig | undefined,
